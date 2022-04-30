@@ -108,10 +108,22 @@ I already have a GitHub account to the basic set-up won't be necessary.  I will 
 
 I generally use different style guides and coding processes when working so I think it is important at this early stage to set-up a flow.
 
+1. Identify next feature that will be created/changed (i.e. work scope).
 1. Make sure on a new GitHub commit
  - Don't load to much change into a single commit
 1. Set-up/Validate environment changes
  - If new step requires an environment or version change to project, then it is important to first update documentation.  I'm a firm believer that if in the past you promise to go back and document that you are just making a liar out of your future self.
 1. Quick reminder step of current style guide
  - Style guide chosen is PEP-8. I normally do not use this so I will leverage pylint to help.
-1.
+1. Determine if new test file is needed
+ - Is this feature distinct enough from old test files to require new set?
+1. Create new tests if needed.
+ - If feature is new then tests will be needed to verify functionality.  If this is a feature change, then no new tests may be needed.
+1. Verify tests by using pytest.
+ - Verify that tests are set-up correctly before moving to actually coding of logic.
+1. Code logic
+1. Run tests to verify that logic is correct
+ -If any tests fail, step back to rework code logic
+1. Use pylint to verify that PEP-8 was followed
+ - If any updates are made to code, then step back to running tests
+1. Locally commit files
