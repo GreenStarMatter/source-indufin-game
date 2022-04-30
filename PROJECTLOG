@@ -109,7 +109,7 @@ I already have a GitHub account to the basic set-up won't be necessary.  I will 
 I generally use different style guides and coding processes when working so I think it is important at this early stage to set-up a flow.
 
 1. Identify next feature that will be created/changed (i.e. work scope).
-1. Make sure on a new GitHub commit
+1. Make sure on correct GitHub branch and on a new commit
  - Don't load to much change into a single commit
 1. Set-up/Validate environment changes
  - If new step requires an environment or version change to project, then it is important to first update documentation.  I'm a firm believer that if in the past you promise to go back and document that you are just making a liar out of your future self.
@@ -127,3 +127,6 @@ I generally use different style guides and coding processes when working so I th
 1. Use pylint to verify that PEP-8 was followed
  - If any updates are made to code, then step back to running tests
 1. Locally commit files
+1. Push to origin.
+1. Compare to existing branch on GitHub
+1. Follow best practice GitHub merging.
