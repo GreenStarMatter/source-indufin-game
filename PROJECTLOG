@@ -1,0 +1,117 @@
+# Project Log
+
+## Introduction
+
+I call this an introduction, but it could also be seen as a statement of purpose.  This is simply a free form of what I was thinking when I was thinking, or perhaps what I was planning to do.  The goal of this document is to communicate my thought process rather than the correctness of the end result.  I will accomplish this by only editing the small section I'm working on until I've concretely decided to move on.  My coding process strongly relies on writing in my notebook by hand; I hope this log will bridge the difficulty in sharing my thoughts which I have previously encountered.
+
+
+## Project Summary
+The goal of this project is to show my programming ability through the creation of a game.  I identified some operations processes which I believe could easily be gamified, are suitable to be easily learned, and can offer a rewarding complex experience by combination of the atomic elements.  The game will consist of a factory which will hold a money balance that will interact with external vendors to reach capital objectives.  I see this as a four phase game: phase 1 will allow the players to purchase and place in their factories, phase 2 will allow their factories to process, phase 3 will allow them to sell/collect new materials, and phase four will evaluate the consequences of their decisions externally.
+
+For capital, my vision is:
+
+- +Starting capital
+- +Capital by selling materials/materials processors (machines)
+- -Capital by purchasing materials/materials processors (machines)
+- +Capital by loan
+- -Capital by interest
+- -Capital by overhead expenses
+
+For processes, my vision is:
+
+- Process materials
+- Process materials processors
+- Allocate maintainers
+- Remove processors
+
+For vendors, my vision is:
+
+- Find buyer
+- Get order
+- Acquire/lose buyer
+- Acquire/lose order
+- Advertise
+- Find seller
+- Acquire/lose seller
+
+
+For this project, I'd like to have multiple players, multiple objectives, and multiple play modes (e.g. cooperative, competitive, unknown).  However, I first want to create the skeleton of the game without the additional complexity.  Therefore, I have decided to start with an easy mode (or better yet a tutorial) which will allow me to get up and running as quickly as possible.  I believe the skeleton will be most easily completed by implementing the phasing of turns with only a few options.
+
+Easy Mode Tutorial:
+
+- Single players
+- Only one buying vendor
+- Only one materials selling vendor
+- Three material types
+- Three machine types
+- Three machine variants
+- Demand from vendor is infinite
+- No loans
+- No repairs
+- No maintainers
+
+
+## Code Goals
+
+To achieve this, I will break the problem down accordingly:
+
+- Money making system
+ - Money in
+ - Money out
+ - Balance
+ - Capital types
+- Machine processing system
+ - Machine functions
+ - Machine variants
+ - Machine costs
+- Machine placement grid system
+ - Grid size
+ - Machine size
+ - Materials size
+ - Add/remove items to/from grid
+- Play conditions
+ - Lose condition (balance below 0)
+ - Win condition (At least $XXX)
+ - Turn counter
+ - Implement phases
+
+## Analysis
+
+I would like to add an analysis aspect to this project.  Primarily I will focus on turns to victory/loss condition, money spent, cumulative profits, placement heat maps, and machine usage.
+
+### Plan
+
+From here, the documentation may become much more free-form.  I had approximately a week of consideration before writing the before hand; the time of which I used to write in my notebook where I am generally very organized.  Below is my first set of steps which I will complete the creation of the Easy Mode Tutorial mode.
+
+1. Identify best project set-up
+1. Identify best test suite
+1. Create project and upload to GitHub
+1. Start Test Driven Development (TDD) of Code Goals
+1. At each step evaluate code quality/style adherence (Likely through use of linter, Pylint)
+1. Implement analytics after core mechanics
+
+#### Progress 4/30/2022 12:33 pm
+
+I have chosen Anaconda to manage my Python packages as I am very familiar with it (~7 years experience).  However, I set my original environment up as a toy environment which I haphazardly maintained over the past years whenever I needed to see how a function works or to pull quickly pull a library in to see if it might be useful for a work environment.  To rectify this, I simply exported my environment into a .yml file using (conda env export > environment.yml) and renamed the name in the .yml file to **old_environment**.  I then updated to the newest version of Anaconda with simple conda update commands.  I then pointed to the old_environment .yml and created a virtual environment using (conda env create -f environment.yml).  This allowed me to clean-up my environment without losing any of my other work; though they are generally disorganized non-version controlled scripts I still love them.  Personally I tend to be an over-worker that is constantly reading and learning; however, I tend not to make cohesive engineering level side-projects as that is what I do at work.  So unfortunately that means work before starting to do meaningful work.
+
+#### Progress 4/30/2022 12:54 pm
+I just realized that when going to create a new virtual environment for this game that I have not named it yet.  I probably should do that so the environment name is easier to remember, though I could just rename it later I suppose.  I'm choosing source_indufin (source, industry, finance) because it is what it is and it sounds funny when said quickly.  The command to create this environment is conda create -n source_indufin python=3.7.10.  I prefer to work in Python 3.7.10 as I'm familiar with it and I'm fairly certain will contain more than enough capability to implement this project.
+
+#### Progress 4/30/2022 1:00 pm
+Installed numpy, pandas, pylint, and pytest to conda environment.  These will hopefully make development much easier.  Next goal is to set-up GitHub environment.
+
+#### Progress 4/30/2022 1:18 pm
+
+I already have a GitHub account to the basic set-up won't be necessary.  I will just need to create a new environment which I think I will just use the GUI to do so.  Project is now a GitHub repository.  Project log has been added, tests directory, and an empty ReadMe as well.  I think it would be good to establish a simple process loop.
+
+### Process Loop
+
+I generally use different style guides and coding processes when working so I think it is important at this early stage to set-up a flow.
+
+1. Make sure on a new GitHub commit
+ - Don't load to much change into a single commit
+1. Set-up/Validate environment changes
+ - If new step requires an environment or version change to project, then it is important to first update documentation.  I'm a firm believer that if in the past you promise to go back and document that you are just making a liar out of your future self.
+1. Quick reminder step of current style guide
+ - Style guide chosen is PEP-8. I normally do not use this so I will leverage pylint to help.
+1.
