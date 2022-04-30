@@ -130,3 +130,12 @@ I generally use different style guides and coding processes when working so I th
 1. Push to origin.
 1. Compare to existing branch on GitHub
 1. Follow best practice GitHub merging.
+
+#### Progress 4/30/2022 1:42 pm
+
+Updated project log and merged to GitHub.  Now project is established, process is established, logic has been broken up into steps.  Next step is to implement logic.
+
+
+#### Progress 4/30/2022 5:17 pm
+
+Installed Spyder IDE to conda environment.  I prefer to use this as I like to have an R like set-up where I can run commands to verify the behavior in an almost instant feedback system and I can easily track variables.  Got the package and sub-package hierarchy set-up.  Added a first set of basic existence tests.  Added in some account addition by overwriting dunder methods.  Also adding some assignment abilites.  Class looks pretty solid to start with.  I need to run a linter on it and then reverify tests.  Pylint was rolled over code and some minor corrections were made.  Some renaming completed, restructured the directory, and obliterated 100 white space characters injected by Spyder IDE.  Reran all tests, time for first GitHub push!
