@@ -1,2 +1,2 @@
 # source-indufin-game
- source indufin is a game which involves sources materials, processing them, and managing capital.
+ source indufin is a game which involves sourcing materials, processing them, and managing capital.
