@@ -168,18 +168,20 @@ Noticed better name for CreatedMachine class. Will go back and fix after materia
 
 Went back through for minor errors/updates and corrected.  Reran all tests and linted to make sure nothing was injected.  Pushing to GitHub.
 
-#### Progress
+#### Progress 5/1/2022 12:44 am
 - NOTE: Don't forget to create ReadME!
-- NOTE: Don't forget processor class!
 - NOTE: Don't forget factory/grid class!
 - NOTE: Don't forget vendor class!
 - NOTE: Don't forget turn phase logic!
 
+Considering changing language in machines and materials to align.  One calls it an augmentation and the other form.  Both make sense and are slightly different; however, it may flow better if they are named the same or more similarly.  Also just noticed a lapse in the testing docustrings, think I'm getting a bit tired.  Noticed some holes in testing, I'm not bounding input... very much assuming fair players.  I need to go back and create restraints, this may be more appropriate as integration level testing now that I have a better idea of how the game will play.  This was difficult at the beginning because a lot of this game is made up on the spot.  These started to get more noticeable at the processor class which is an integration of machines and materials.  I was also thinking I may need a palette class, though I think I can make it work with a processor unit.  The machine would be the palette and the material would be the held material.  The processor would have an infinite clock and would be destroyed on command.  Only difficulty would be handling the amount of material that could be held in palette.  Just noticed that I need to rename all internal methods with leading underscore, bad habit crept in.
 
+
+Finished first pass at processors.  I think there may be more to do once I start getting the turns up and running.  Seems like it would be good to get a decrement for the turns to finish.  Also would seem good to manage the material/machine quality from an external source.  I may have this initialize every game in an environment type object.  That could lead to easy randomization as well as set game types that could be stored in data structures.  Need to finish documentation, lint, and retest.  Then I can check this in.  All tests passed, linted, and retested.  Turning in and turning myself in to bed.
 
 #### Progress
 - NOTE: Don't forget to create ReadME!
-- NOTE: Don't forget processor class!
 - NOTE: Don't forget factory/grid class!
 - NOTE: Don't forget vendor class!
 - NOTE: Don't forget turn phase logic!
+- NOTE: Expand test suite and restrict object inputs!
