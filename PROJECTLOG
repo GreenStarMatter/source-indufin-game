@@ -149,20 +149,27 @@ Just worked through the machines class.  This caused some flair-ups which I had 
 
 
 
-#### Progress
+#### Progress 4/30/2022 10:50 pm
 - NOTE: Don't forget to create ReadME!
-- NOTE: Don't forget materials class!
 - NOTE: Don't forget processor class!
 - NOTE: Don't forget factory/grid class!
 - NOTE: Don't forget vendor class!
 - NOTE: Don't forget turn phase logic!
 
-Noticed better name for CreatedMachine class. Will go back and fix after materials are finished in different commit.  Also noticed minor error in __repr__ of machines, kept some of naming from money.  Also likely kept only money naming convention in __repr__ of MoneyAccount.
+Noticed better name for CreatedMachine class. Will go back and fix after materials are finished in different commit.  Also noticed minor error in __repr__ of machines, kept some of naming from money.  Also likely kept only money naming convention in __repr__ of MoneyAccount.  Finished materials class, testing,  and linting.  Going back for minor errors/updates.
 
+
+#### Progress 4/30/2022 10:57 pm
+- NOTE: Don't forget to create ReadME!
+- NOTE: Don't forget processor class!
+- NOTE: Don't forget factory/grid class!
+- NOTE: Don't forget vendor class!
+- NOTE: Don't forget turn phase logic!
+
+Went back through for minor errors/updates and corrected.  Reran all tests and linted to make sure nothing was injected.  Pushing to GitHub.
 
 #### Progress
 - NOTE: Don't forget to create ReadME!
-- NOTE: Don't forget materials class!
 - NOTE: Don't forget processor class!
 - NOTE: Don't forget factory/grid class!
 - NOTE: Don't forget vendor class!
@@ -172,17 +179,6 @@ Noticed better name for CreatedMachine class. Will go back and fix after materia
 
 #### Progress
 - NOTE: Don't forget to create ReadME!
-- NOTE: Don't forget materials class!
-- NOTE: Don't forget processor class!
-- NOTE: Don't forget factory/grid class!
-- NOTE: Don't forget vendor class!
-- NOTE: Don't forget turn phase logic!
-
-
-
-#### Progress
-- NOTE: Don't forget to create ReadME!
-- NOTE: Don't forget materials class!
 - NOTE: Don't forget processor class!
 - NOTE: Don't forget factory/grid class!
 - NOTE: Don't forget vendor class!

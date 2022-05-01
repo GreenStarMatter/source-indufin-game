@@ -5,7 +5,7 @@ Created on Sat Apr 30 17:26:11 2022
 @author: Kyle Stanley
 """
 
-class CreatedMachine():
+class MachineUnit():
     """This class is intended to hold all possible things a machine can do.
     Currently, machines are single function though they may take in many
     inputs.  They can be owned and named.  Each machine will have an
@@ -49,7 +49,7 @@ class CreatedMachine():
         """The representation of the object so that it can be used as an
         abstract entity"""
 
-        return f"money_account({self.cost}, {self.shape}, " + \
+        return f"MachineUnit({self.cost}, {self.shape}, " + \
             "{self.owner}, {self.machine_name}, " + \
             "{self.processable_inputs}, {self.augment}, " + \
             "{self.augment_potency})"
@@ -114,12 +114,12 @@ class CreatedMachine():
 
 
     def add_processable_input(self, new_processable_inputs):
-        """Allows the ability to add an item to the processable inputs"""   
+        """Allows the ability to add an item to the processable inputs"""
 
         self.processable_inputs.add(new_processable_inputs)
 
     def remove_processable_input(self, remove_processable_inputs):
-        """Allows the ability to add an item to the processable inputs""" 
+        """Allows the ability to add an item to the processable inputs"""
 
         if remove_processable_inputs in self.processable_inputs:
             self.processable_inputs.add(remove_processable_inputs)

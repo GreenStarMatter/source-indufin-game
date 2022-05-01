@@ -36,7 +36,7 @@ class MoneyAccount():
         """The representation of the object so that it can be used as an
         abstract entity"""
 
-        return f"money_account({self.balance}, {self.owner}, " + \
+        return f"MoneyAccount({self.balance}, {self.owner}, " + \
             "{self.account_name})"
 
 

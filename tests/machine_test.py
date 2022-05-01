@@ -14,7 +14,7 @@ from source_indufin_game import machines
 def test_machine_object_shape():
     """Tests basics of account creation"""
 
-    basic_machine = machines.CreatedMachine()
+    basic_machine = machines.MachineUnit()
     assert basic_machine
     assert basic_machine.cost == 0
     assert basic_machine.size == 1
@@ -25,7 +25,7 @@ def test_machine_object_shape():
     assert basic_machine.augment == "No Augmentation"
     assert basic_machine.augment_potency == 0
 
-    basic_machine = machines.CreatedMachine(
+    basic_machine = machines.MachineUnit(
         cost = 100,
         shape = [1, 1, 1, 1, 1],
         owner = "Player 1",
@@ -46,7 +46,7 @@ def test_machine_object_shape():
 def test_machine_altering_shape():
     """Tests basics of account creation"""
 
-    basic_machine = machines.CreatedMachine(
+    basic_machine = machines.MachineUnit(
         cost = 100,
         shape = [1, 1, 1, 1, 1],
         owner = "Player 1",
