@@ -22,7 +22,7 @@ def test_account_object_shape():
     assert basic_account.owner == "None Assigned"
     assert basic_account.account_name == "None Assigned"
 
-    basic_account = accounts.MoneyAccount(100,"Player 1", "Acct 1")
+    basic_account = accounts.MoneyAccount(100, "Player 1", "Acct 1")
     assert basic_account.balance == 100
     assert basic_account.owner == "Player 1"
     assert basic_account.account_name == "Acct 1"

@@ -140,14 +140,22 @@ Updated project log and merged to GitHub.  Now project is established, process i
 
 Installed Spyder IDE to conda environment.  I prefer to use this as I like to have an R like set-up where I can run commands to verify the behavior in an almost instant feedback system and I can easily track variables.  Got the package and sub-package hierarchy set-up.  Added a first set of basic existence tests.  Added in some account addition by overwriting dunder methods.  Also adding some assignment abilites.  Class looks pretty solid to start with.  I need to run a linter on it and then reverify tests.  Pylint was rolled over code and some minor corrections were made.  Some renaming completed, restructured the directory, and obliterated 100 white space characters injected by Spyder IDE.  Reran all tests, time for first GitHub push!  Next step is to add industry to project.  I'm seeing that I forgot to add in materials to the original industry development plan.  Fortunately, these should be fairly similar to the machine processing system so I don't believe this will be too much additional work.  I also need to remember to instance the ReadME when I get to the end of the Easy Mode Tutorial.  I'll tuck that into each progress check.
 
-#### Progress
+#### Progress 4/30/2022 7:30 pm
 NOTE: Don't forget to create ReadME!
 NOTE: Don't forget materials class!
 
+Had a typo in the first line of the ReadME. Typical.
+Just worked through the machines class.  This caused some flair-ups which I had not thought of yet.  I am going to need a processor class which takes the machine and material in to validate and create new objects from them.  This will hopefully prevent my machine and materials classes from becoming monolithic.  Other than that I have tested, linted, retested, and am ready to move this class to the repository!
+
+
 
 #### Progress
 NOTE: Don't forget to create ReadME!
 NOTE: Don't forget materials class!
+NOTE: Don't forget processor class!
+NOTE: Don't forget factory/grid class!
+NOTE: Don't forget vendor class!
+NOTE: Don't forget turn phase logic!
 
 
 
