@@ -179,9 +179,162 @@ Considering changing language in machines and materials to align.  One calls it 
 
 Finished first pass at processors.  I think there may be more to do once I start getting the turns up and running.  Seems like it would be good to get a decrement for the turns to finish.  Also would seem good to manage the material/machine quality from an external source.  I may have this initialize every game in an environment type object.  That could lead to easy randomization as well as set game types that could be stored in data structures.  Need to finish documentation, lint, and retest.  Then I can check this in.  All tests passed, linted, and retested.  Turning in and turning myself in to bed.
 
-#### Progress
-- NOTE: Don't forget to create ReadME!
-- NOTE: Don't forget factory/grid class!
-- NOTE: Don't forget vendor class!
-- NOTE: Don't forget turn phase logic!
-- NOTE: Expand test suite and restrict object inputs!
+#### Progress 5/1/2022 10:39 am
+- CREATE: Don't forget to create ReadME!
+- CREATE: Don't forget factory/grid class!
+- CREATE: Don't forget vendor class!
+- CREATE: Don't forget turn phase logic!
+- EXPAND: Expand test suite and restrict object inputs!  Also upgrade docustrings when back in test scripts.  It will be easier to write documentation because I will have a better idea of how to distinguish/categorize them
+- EXPAND: Add capacity attribute to machines
+- EXPAND: Add palette logic to processors
+- EXPAND: Add transfer logic to processors
+- REWORK: Rename internal methods with leading underscore (machines, accounts, and all testing)
+
+Picking up where I left off yesterday.  Going to review log first so I don't lose any musings I made, but didn't record well.  I think I can finish the Basic Tutorial mode.  Biggest challenges will be the grid logic and the turn/phase logic.  I think I just solved the palette issue.  If I extend the machine class to have a "capacity" attribute, then I could multi-process materials.  This would also allow me to put multiple materials into a holding space.  The only difference is that the materials will inherit their form and form strength from themselves rather than the machine.  I also see processed materials being stuck in a processor/machine if there is no room to put them into a palette, this would be mitigated by placing a palette and designating a landing spot.
+
+#### Progress 5/1/2022 12:11 pm
+- CREATE: Don't forget to create ReadME!
+- CREATE: Don't forget factory/grid class!
+- CREATE: Don't forget vendor class!
+- CREATE: Don't forget turn phase logic!
+- EXPAND: Expand test suite and restrict object inputs!  Also upgrade docustrings when back in test scripts.  It will be easier to write documentation because I will have a better idea of how to distinguish/categorize them
+- EXPAND: Add capacity attribute to machines
+- EXPAND: Add palette logic to processors
+- EXPAND: Add transfer logic to processors
+- REWORK: Rename internal methods with leading underscore (machines, accounts, and all testing)
+
+Implement vendors class.  This will consist of both sellers and buyers.  I'm thinking a catalogue type system where sellers and buyers have set lists of things they will purchase/sell with a corresponding price point.
+
+During implementation of vendor class, catalogue feels a bit complex.  Nested structure with a lot of info.  May be wise to break this down in the near future.  Managing this data with nested dict structure is already feeling like a hassle, my gut tells me a RDBMS would be best.  I may be able to get away with managing this in a .csv structure for now or setting up a postgreSQL DB.  Whatever the decision is, this feels like a tabular form that Pandas could easily process.  Now that I think a bit more, Pandas could probably tackle this completely for the Basic Tutorial version.  I could go bigger with a Relational DB as needed in future versions if the data storage facet gets large enough.  I was trying to stay in Python's standard library for as long as possible, but Pandas is pretty ubiquitous.  Looking like a good decision, this is minimizing my tests by allowing me to keep a single simple catalogue instead of multiple smaller dictionaries... I work in this everyday, probably should have seen that one earlier.  Pride. Or perhaps I need to slow down a bit and make sure I have this logic flushed out. Or both.  I'm thinking that I'm now at the integration level and I don't have this as well thought out as I did the general structure.
+
+
+Need to finish the product, account, and status add/subtract.  Then I need to code the actual function.  Then I need to finish the grid class.  After this point I will regroup before doing the phase logic as this will be the integration between all of these objects.  It would be a good idea to revisit everything I've learned or thought of during this process.  I've been revisiting the idea if I want objects to own objects or just references to those objects.  I think I've been implicitly assigning these on intuition, but I need to make a concrete decision soon.  Probably will revisit at end of first development round.
+
+#### Progress 5/1/2022 4:04 pm
+- CREATE: Don't forget to create ReadME!
+- CREATE: Don't forget factory/grid class!
+- CREATE: Don't forget vendor class!
+- CREATE: Don't forget turn phase logic!
+- CREATE: Create a ledger class, this was going to be a bank; however, I believe this can be more general purpose for tracking machines and materials as well.
+- EXPAND: Expand test suite and restrict object inputs!  Also upgrade docustrings when back in test scripts.  It will be easier to write documentation because I will have a better idea of how to distinguish/categorize them
+- EXPAND: Add capacity attribute to machines
+- EXPAND: Add palette logic to processors
+- EXPAND: Add transfer logic to processors
+- EXPAND: Add consolidate method which moves all accounts held into one account.  Potentially put this in a new bank object.
+- EXPAND: Add ability to remove sell/buy transactions from vendor.  Likely won't be extremely necessary, as right now I can just deplete their stocks.  It may be useful during gameplay to see what actions they can perform at a glance.
+- REWORK: Rename internal methods with leading underscore (machines, accounts, and all testing)
+- REWORK: Decide if objects should be held by other objects or just references.  So far vendors are more of references as they are mimicking a catalogue (wouldn't actually have the item, but could source it).  The accounts probably should be direct references to objects as they are being held by each vendor.
+- NOTE: I have decided to keep the player as a vendor, but will afford them special abilities to make decisions.  This will hopefully cut down on needed code.  May just extend the vendor class to accept user input and allow factory interaction.
+
+
+Idea to create a general purpose ledger.  This would make it easier to manage all of the games assets in a single location.  Thinking that if there are a lot of ledger writes that may cause I/O slowdowns and interpret the pace of the game.  I don't think the ledger will be large enough to cause that, but it's worth keeping an eye on.  I could also manage everything with ledgers of ledgers which would likely keep my I/O latency low, but may cause some integration issues if I'm not careful with processing steps and validation.
+
+Tests appear to be completed for vendors, now moving on to creating vendor class.  Noticed minor error in machines, remove processable material added item instead of removing.  Fixed this as it was a one liner that was obviously wrong.  Starting to struggle a little bit, I have outpaced my original plan and am finding new functionality questions I didn't think of... would've been easier to implement an existing game instead of making one up on the fly.
+
+Vendor logic nearing completion, catalogue handling turned out to be a bit more complex than I thought it would be.  Taking my time on it so it doesn't explode code size.  Feeling a bit unproductive, I think I'm going to re-diagram the code as it has changed pretty significantly in a short period of time.  I'm trying to implement the entirety of a catalogue instead of the MVP which will get me to the Basic Tutorial. Stop it.
+
+
+#### Progress 5/1/2022 5:07 pm
+- CREATE: Don't forget to create ReadME!
+- CREATE: Don't forget factory/grid class!
+- CREATE: Don't forget vendor class!
+- CREATE: Don't forget turn phase logic!
+- CREATE: Create a ledger class, this was going to be a bank; however, I believe this can be more general purpose for tracking machines and materials as well.
+- EXPAND: Expand test suite and restrict object inputs!  Also upgrade docustrings when back in test scripts.  It will be easier to write documentation because I will have a better idea of how to distinguish/categorize them
+- EXPAND: Add capacity attribute to machines
+- EXPAND: Add palette logic to processors
+- EXPAND: Add transfer logic to processors
+- EXPAND: Add consolidate method which moves all accounts held into one account.  Potentially put this in a new bank object.
+- EXPAND: Add ability to remove sell/buy transactions from vendor.  Likely won't be extremely necessary, as right now I can just deplete their stocks.  It may be useful during gameplay to see what actions they can perform at a glance.
+- REWORK: Rename internal methods with leading underscore (machines, accounts, and all testing)
+- REWORK: Decide if objects should be held by other objects or just references.  So far vendors are more of references as they are mimicking a catalogue (wouldn't actually have the item, but could source it).  The accounts probably should be direct references to objects as they are being held by each vendor.
+- NOTE: I have decided to keep the player as a vendor, but will afford them special abilities to make decisions.  This will hopefully cut down on needed code.  May just extend the vendor class to accept user input and allow factory interaction.
+
+Writing this down in my notebook, I have essentially doubled the amount of objects I originally planned for.  I had planned to be done by now with simpler plan.  Writing everything down is helping.  I'm thinking I over-engineered the MVP which will be helpful down the line but is wearing on my patience now.  I've found a shortcut for now.  In Basic Tutorial I will assume infinite supply and demand.  This will allow for purchases/sales if the player has enough capital and will give me a good framework for the future.  I will manually set the vendors amounts so I don't have to worry about any transfers besides accounts.  Realized biggest issue I'm getting stumped on is how to transfer new items to player.  Removal is easy, but I'm thinking maybe a temporary holding list within the player industry phase would be best.  If they move to the next phase with items in here, this is essentially throwing them away (valid move if factory space is too small).  So I'm struggling with the grid and play handler.  I'm just going to simplify the vendor catalogues to only focus on if inventory in catalogue and if player can afford transaction.  This is going to be easier if I only allow single edits in Pandas to start.
+
+
+#### Progress 5/1/2022 11:37 pm
+- CREATE: Don't forget to create ReadME!
+- CREATE: Don't forget factory/grid class!
+- CREATE: Don't forget vendor class!
+- CREATE: Don't forget turn phase logic!
+- CREATE: Create a ledger class, this was going to be a bank; however, I believe this can be more general purpose for tracking machines and materials as well.
+- EXPAND: Expand test suite and restrict object inputs!  Also upgrade docustrings when back in test scripts.  It will be easier to write documentation because I will have a better idea of how to distinguish/categorize them
+- EXPAND: Add capacity attribute to machines
+- EXPAND: Add palette logic to processors
+- EXPAND: Add transfer logic to processors
+- EXPAND: Add consolidate method which moves all accounts held into one account.  Potentially put this in a new bank object.
+- EXPAND: Add ability to remove sell/buy transactions from vendor.  Likely won't be extremely necessary, as right now I can just deplete their stocks.  It may be useful during gameplay to see what actions they can perform at a glance.
+- REWORK: Rename internal methods with leading underscore (machines, accounts, and all testing)
+- REWORK: Decide if objects should be held by other objects or just references.  So far vendors are more of references as they are mimicking a catalogue (wouldn't actually have the item, but could source it).  The accounts probably should be direct references to objects as they are being held by each vendor.
+- NOTE: I have decided to keep the player as a vendor, but will afford them special abilities to make decisions.  This will hopefully cut down on needed code.  May just extend the vendor class to accept user input and allow factory interaction.
+
+I took a pretty long break today and came back to this.  Definitely was overcomplicating things because I'm tired.  I simplified back down and have essentially completed the vendor class.  I need to increase the test coverage before I'll comfortably say that, but otherwise the vendors appear to have the correct logic.  I was going to put the accounts in the ledger, but I think I will give them to the vendors.  This would make things a lot easier.  Maybe the ledger can do things like consolidate accounts and return them to vendors as well as keeping external track of all finances.
+
+
+#### Progress 5/2/2022 7:19 pm
+- TODO: Don't forget to create ReadME!
+- TODO: Don't forget factory/grid class!
+- TODO: Don't forget vendor class!
+- TODO: Don't forget turn phase logic!
+- TODO: Create a ledger class, this was going to be a bank; however, I believe this can be more general purpose for tracking machines and materials as well.
+- EXPAND: Expand test suite and restrict object inputs!  Also upgrade docustrings when back in test scripts.  It will be easier to write documentation because I will have a better idea of how to distinguish/categorize them
+- EXPAND: Add capacity attribute to machines
+- EXPAND: Add palette logic to processors
+- EXPAND: Add transfer logic to processors
+- EXPAND: Add consolidate method which moves all accounts held into one account.  Potentially put this in a new bank object.
+- EXPAND: Add ability to remove sell/buy transactions from vendor.  Likely won't be extremely necessary, as right now I can just deplete their stocks.  It may be useful during gameplay to see what actions they can perform at a glance.
+- EXPAND: Add transaction class.  This would standardize the transaction form and make the updates to other class objects much more clean.
+- EXPAND: Add catalogue class.  This would take complexity away from vendor classes and make it easier to track items.
+- REWORK: Rename internal methods with leading underscore (machines, accounts, and all testing)
+- REWORK: Decide if objects should be held by other objects or just references.  So far vendors are more of references as they are mimicking a catalogue (wouldn't actually have the item, but could source it).  The accounts probably should be direct references to objects as they are being held by each vendor.
+- REWORK:  Change MoneyAccount to use objects on dunder methods
+- NOTE: I have decided to keep the player as a vendor, but will afford them special abilities to make decisions.  This will hopefully cut down on needed code.  May just extend the vendor class to accept user input and allow factory interaction.
+
+Noticed minor error in MoneyAccounts.__repr__, didn't have f on f string.  Also noticed that all functions work between a MoneyAccount object and a number, thinking I want to change this to work between two MoneyAccounts instead.  It would be very useful to implment a buy transaction from an object.  This would be very similar to vendor catalogue processing.  Really starting to feel like I need a catalogue class and an assets class.  Something which can store multiple of the subclasses and makes aggregation of them easier.  I should have only allowed a single account per vendor to start for simplicity, now having to compensate for logic which won't be in the Basic Tutorial.  Simplified down to one account.  I think this would be much easier with a transaction object.  I've caught myself pasting the same Pandas structure to multiple files.  I think I can do without for now, but this would be a useful expansion.
+
+Just made update to accounts to be able to process transactions.
+
+
+#### Progress 5/1/2022 11:37 pm
+- CREATE: Don't forget to create ReadME!
+- CREATE: Don't forget factory/grid class!
+- CREATE: Don't forget vendor class!
+- CREATE: Don't forget turn phase logic!
+- CREATE: Create a ledger class, this was going to be a bank; however, I believe this can be more general purpose for tracking machines and materials as well.
+- EXPAND: Expand test suite and restrict object inputs!  Also upgrade docustrings when back in test scripts.  It will be easier to write documentation because I will have a better idea of how to distinguish/categorize them
+- EXPAND: Add capacity attribute to machines
+- EXPAND: Add palette logic to processors
+- EXPAND: Add transfer logic to processors
+- EXPAND: Add consolidate method which moves all accounts held into one account.  Potentially put this in a new bank object.
+- EXPAND: Add ability to remove sell/buy transactions from vendor.  Likely won't be extremely necessary, as right now I can just deplete their stocks.  It may be useful during gameplay to see what actions they can perform at a glance.
+- REWORK: Rename internal methods with leading underscore (machines, accounts, and all testing)
+- REWORK: Decide if objects should be held by other objects or just references.  So far vendors are more of references as they are mimicking a catalogue (wouldn't actually have the item, but could source it).  The accounts probably should be direct references to objects as they are being held by each vendor.
+- NOTE: I have decided to keep the player as a vendor, but will afford them special abilities to make decisions.  This will hopefully cut down on needed code.  May just extend the vendor class to accept user input and allow factory interaction.
+
+I took a pretty long break today and came back to this.  Definitely was overcomplicating things because I'm tired.  I simplified back down and have essentially completed the vendor class.  I need to increase the test coverage before I'll comfortably say that, but otherwise the vendors appear to have the correct logic.  I was going to put the accounts in the ledger, but I think I will give them to the vendors.  This would make things a lot easier.  Maybe the ledger can do things like consolidate accounts and return them to vendors as well as keeping external track of all finances.
+
+
+#### Progress 5/2/2022 8:06 pm
+- TODO: Don't forget to create ReadME!
+- TODO: Don't forget factory/grid class!
+- TODO: Don't forget vendor class!
+- TODO: Don't forget turn phase logic!
+- TODO: Create a ledger class, this was going to be a bank; however, I believe this can be more general purpose for tracking machines and materials as well.
+- EXPAND: Expand test suite and restrict object inputs!  Also upgrade docustrings when back in test scripts.  It will be easier to write documentation because I will have a better idea of how to distinguish/categorize them
+- EXPAND: Add capacity attribute to machines
+- EXPAND: Add palette logic to processors
+- EXPAND: Add transfer logic to processors
+- EXPAND: Add consolidate method which moves all accounts held into one account.  Potentially put this in a new bank object.
+- EXPAND: Add ability to remove sell/buy transactions from vendor.  Likely won't be extremely necessary, as right now I can just deplete their stocks.  It may be useful during gameplay to see what actions they can perform at a glance.
+- EXPAND: Add transaction class.  This would standardize the transaction form and make the updates to other class objects much more clean.
+- EXPAND: Add catalogue class.  This would take complexity away from vendor classes and make it easier to track items.
+- REWORK: Rename internal methods with leading underscore (machines, accounts, and all testing)
+- REWORK: Decide if objects should be held by other objects or just references.  So far vendors are more of references as they are mimicking a catalogue (wouldn't actually have the item, but could source it).  The accounts probably should be direct references to objects as they are being held by each vendor.
+- REWORK:  Change MoneyAccount to use objects on dunder methods
+- REWORK:  Move non-self-referential functions out of classes (vendor).  This may be easier accomplished by making the catalogue and transaction classes.  This is a workable short term solution.
+- NOTE: I have decided to keep the player as a vendor, but will afford them special abilities to make decisions.  This will hopefully cut down on needed code.  May just extend the vendor class to accept user input and allow factory interaction.
+
+FINALLY FINISHED VENDOR CLASS!! (first version)...  As soon as I added Pandas in, I went to implement everything I could do with it instead of what needed to be done.  After revisiting requirements and simplifying down I have the necessary play functionality.  I can always update the other stuff as I like, but for now I need to focus on the MVP.
+
+Just went through and linted code.  Looks satisfactory!  Reran tests and everything still passes.  Time to upload to GitHub and then start on the grid class.

@@ -11,7 +11,7 @@ and the ability to create simple changes to those balances.
 
 
 from source_indufin_game import accounts
-
+import pandas as pd
 
 def test_account_object_shape():
     """Tests basics of account creation"""
@@ -65,3 +65,30 @@ def test_account_amount_properties():
 
     changing_account-=100
     assert changing_account.balance == 100
+
+def test_multiple_account_exchange():
+    """Tests balance changing logic of account class"""
+
+    buying_account = accounts.MoneyAccount()
+    selling_account = accounts.MoneyAccount()
+    update_columns = ["vendor_type", "product_type", "form",
+                      "potency", "stock", "cost"]
+    catalogue_update = [["Buy", "Testonium", "Bar",
+                        3, 2, 30]]
+    update_df = pd.DataFrame(catalogue_update, columns = update_columns)
+    buying_account.set_balance(100)
+    selling_account.set_balance(100)
+    buying_account.purchase_from(selling_account, update_df)
+    assert buying_account.balance == 40
+    assert selling_account.balance == 160
+
+    update_columns = ["vendor_type", "product_type", "form",
+                      "potency", "stock", "cost"]
+    catalogue_update = [["Buy", "Testonium", "Bar",
+                        3, 2, 30]]
+    update_df = pd.DataFrame(catalogue_update, columns = update_columns)
+    buying_account.set_balance(50)
+    selling_account.set_balance(100)
+    buying_account.purchase_from(selling_account, update_df)
+    assert buying_account.balance == 50
+    assert selling_account.balance == 100

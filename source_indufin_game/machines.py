@@ -122,6 +122,6 @@ class MachineUnit():
         """Allows the ability to add an item to the processable inputs"""
 
         if remove_processable_inputs in self.processable_inputs:
-            self.processable_inputs.add(remove_processable_inputs)
+            self.processable_inputs.remove(remove_processable_inputs)
         else:
             print(f"{remove_processable_inputs} already not allowable")

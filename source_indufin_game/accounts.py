@@ -37,7 +37,7 @@ class MoneyAccount():
         abstract entity"""
 
         return f"MoneyAccount({self.balance}, {self.owner}, " + \
-            "{self.account_name})"
+            f"{self.account_name})"
 
 
     def __str__(self):
@@ -117,3 +117,26 @@ class MoneyAccount():
         """Allows for modifier on in-place addition by thousand increments"""
 
         self.__iadd__(amount * (1000 ** len(modifier)))
+
+
+    def verify_purchase_possible(self, update_df):
+        """Verify funds sufficient for sale"""
+
+        order_cost = update_df["stock"].values * update_df["cost"].values
+        return self.balance >= order_cost
+
+
+    def purchase_from(self, seller, update_df):
+        """Initiate a purchase to a seller for a certain amount"""
+
+        if self.verify_purchase_possible(update_df):
+            #send money to seller
+            #deduct money from account
+            order_cost = update_df["stock"].values * update_df["cost"].values
+            seller.add_deposit_amount(order_cost)
+            self.remove_expense_amount(order_cost)
+            print("Transaction Successful!")
+        else:
+            print("Not enough money for transaction")
+        print(f"self.owner new balance is: f{self.balance}")
+        print(f"seller.owner new balance is: f{seller.balance}")
