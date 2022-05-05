@@ -26,33 +26,34 @@ class MachineUnit():
     def __init__(
             self,
             cost = 0,
-            shape = [1],
+            shape = [[1]],
             owner = "None Assigned",
             machine_name = "Generic Machine",
             processable_inputs = ["None"],
             augment = "No Augmentation",
-            augment_potency = 0
+            augment_potency = 0,
+            capacity = 0
             ):
         """Inits the class with a cost, shape, owner, machine name,
         processable_inputs, augment, and augment_potency"""
 
         self.cost = cost
-        self.size = sum(shape)
-        self.shape = shape
+        self.set_shape(shape)
         self.owner = owner
         self.machine_name = machine_name
         self.processable_inputs = set(processable_inputs)
         self.augment = augment
         self.augment_potency = augment_potency
+        self.capacity = capacity
 
     def __repr__(self):
         """The representation of the object so that it can be used as an
         abstract entity"""
 
         return f"MachineUnit({self.cost}, {self.shape}, " + \
-            "{self.owner}, {self.machine_name}, " + \
-            "{self.processable_inputs}, {self.augment}, " + \
-            "{self.augment_potency})"
+            f"{self.owner}, {self.machine_name}, " + \
+            f"{self.processable_inputs}, {self.augment}, " + \
+            f"{self.augment_potency})"
 
     def __str__(self):
         """The representation of the object so that it can understood
@@ -83,7 +84,10 @@ class MachineUnit():
         """Allows the ability to manually set the machine shape"""
 
         self.shape = new_shape
-        self.size = sum(self.shape)
+        running_size = 0
+        for row in self.shape:
+            running_size += len(row)
+        self.size = running_size
 
 
     def set_machine_name(self, new_machine_name):
@@ -111,6 +115,13 @@ class MachineUnit():
         the machine process are augmented"""
 
         self.augment_potency = new_augment_potency
+
+
+    def set_capacity(self, new_capacity):
+        """Allows the ability to manually set the degree to which the materials
+        the machine process are augmented"""
+
+        self.capacity = new_capacity
 
 
     def add_processable_input(self, new_processable_inputs):

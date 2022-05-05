@@ -18,21 +18,23 @@ def test_machine_object_shape():
     assert basic_machine
     assert basic_machine.cost == 0
     assert basic_machine.size == 1
-    assert basic_machine.shape == [1]
+    assert basic_machine.shape == [[1]]
     assert basic_machine.owner == "None Assigned"
     assert basic_machine.machine_name == "Generic Machine"
     assert basic_machine.processable_inputs == set(["None"])
     assert basic_machine.augment == "No Augmentation"
     assert basic_machine.augment_potency == 0
+    assert basic_machine.capacity == 0
 
     basic_machine = machines.MachineUnit(
         cost = 100,
-        shape = [1, 1, 1, 1, 1],
+        shape = [[1, 1, 1, 1, 1]],
         owner = "Player 1",
         machine_name = "Testulator",
         processable_inputs = ["Testonium", "Testadon"],
         augment = "Melt",
-        augment_potency = 3)
+        augment_potency = 3,
+        capacity = 40)
     assert basic_machine.cost == 100
     assert basic_machine.size == 5
     assert basic_machine.owner == "Player 1"
@@ -41,6 +43,7 @@ def test_machine_object_shape():
                                                     "Testadon"])
     assert basic_machine.augment == "Melt"
     assert basic_machine.augment_potency == 3
+    assert basic_machine.capacity == 40
 
 
 def test_machine_altering_shape():
@@ -48,20 +51,22 @@ def test_machine_altering_shape():
 
     basic_machine = machines.MachineUnit(
         cost = 100,
-        shape = [1, 1, 1, 1, 1],
+        shape = [[1, 1, 1, 1, 1]],
         owner = "Player 1",
         machine_name = "Testulator",
         processable_inputs = ["Testonium", "Testadon"],
         augment = "Melt",
-        augment_potency = 3)
+        augment_potency = 3,
+        capacity = 40)
 
     basic_machine.set_cost(10)
     basic_machine.set_owner("Player 2")
-    basic_machine.set_shape([1, 1, 1])
+    basic_machine.set_shape([[1, 1, 1]])
     basic_machine.set_machine_name("Retestulator")
     basic_machine.set_processable_inputs(["Retestonium", "Retestadon"])
     basic_machine.set_augment("Strengthen")
     basic_machine.set_augment_potency(5)
+    basic_machine.set_capacity(50)
 
     assert basic_machine.cost == 10
     assert basic_machine.size == 3
@@ -72,6 +77,7 @@ def test_machine_altering_shape():
                                                      ])
     assert basic_machine.augment == "Strengthen"
     assert basic_machine.augment_potency == 5
+    assert basic_machine.capacity == 50
 
     basic_machine.add_processable_input("Testanium")
     assert basic_machine.processable_inputs ==  set(["Retestonium",

@@ -34,12 +34,13 @@ def test_processor_altering():
 
     basic_machine = machines.MachineUnit(
         cost = 100,
-        shape = [1, 1, 1, 1, 1],
+        shape = [[1, 1, 1, 1, 1]],
         owner = "Player 1",
         machine_name = "Testulator",
         processable_inputs = ["Testonium", "Testadon"],
         augment = "Melt",
-        augment_potency = 5)
+        augment_potency = 5,
+        capacity = 30)
     basic_material = materials.MaterialUnit(
         cost = 100,
         owner = "Player 1",
@@ -48,7 +49,7 @@ def test_processor_altering():
         form_potency = 3)
     basic_processor = processors.ProcessorUnit(
         mechanism = basic_machine,
-        input_payload = basic_material,
+        input_payload = [basic_material, 20],
         turns_to_produce = 1
         )
 
@@ -69,7 +70,7 @@ def test_processor_what_if_new_material():
 
     basic_machine = machines.MachineUnit(
         cost = 100,
-        shape = [1, 1, 1, 1, 1],
+        shape = [[1, 1, 1, 1, 1]],
         owner = "Player 1",
         machine_name = "Testulator",
         processable_inputs = ["Testonium", "Testadon"],
@@ -79,13 +80,14 @@ def test_processor_what_if_new_material():
         mechanism = basic_machine,
         turns_to_produce = 1
         )
+    material_amount = 20
     basic_material = materials.MaterialUnit(
         cost = 100,
         owner = "Player 1",
         material_name = "Testonium",
         form = "Raw",
         form_potency = 3)
-    basic_processor.set_payload(basic_material)
+    basic_processor.set_payload([basic_material, material_amount])
 
     assert basic_processor.output_payload.material_name \
         == "Testonium"
@@ -114,7 +116,7 @@ def test_processor_what_if_new_mechanism():
         )
     basic_machine = machines.MachineUnit(
         cost = 100,
-        shape = [1, 1, 1, 1, 1],
+        shape = [[1, 1, 1, 1, 1]],
         owner = "Player 1",
         machine_name = "Testulator",
         processable_inputs = ["Testonium", "Testadon"],
