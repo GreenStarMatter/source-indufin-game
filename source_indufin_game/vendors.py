@@ -35,8 +35,9 @@ class Vendor():
                           "form",
                           "potency",
                           "stock",
-                          "cost"]
-        vendor_catalogue = [["None", "None", "None", 0, 0, 0]]
+                          "cost",
+                          "process_time"]
+        vendor_catalogue = [["None", "None", "None", 0, 0, 0, 0]]
         return pd.DataFrame(vendor_catalogue, columns = vendor_columns)
 
 
@@ -47,7 +48,8 @@ class Vendor():
         time."""
 
         #maybe put temp variable to keep index of row to be changed?
-        index_columns = ["vendor_type", "product_type", "form", "potency"]
+        index_columns = ["vendor_type", "product_type",
+                         "form", "potency", "process_time"]
         index_df = verify_catalogue_record_df[index_columns].copy()
         exists = pd.merge(self.catalogue.reset_index(drop = False), index_df,
                           how = 'inner', on = index_columns)

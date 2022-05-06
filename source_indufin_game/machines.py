@@ -32,7 +32,8 @@ class MachineUnit():
             processable_inputs = ["None"],
             augment = "No Augmentation",
             augment_potency = 0,
-            capacity = 0
+            capacity = 0,
+            turns_to_process = 0
             ):
         """Inits the class with a cost, shape, owner, machine name,
         processable_inputs, augment, and augment_potency"""
@@ -45,6 +46,7 @@ class MachineUnit():
         self.augment = augment
         self.augment_potency = augment_potency
         self.capacity = capacity
+        self.turns_to_process = turns_to_process
 
     def __repr__(self):
         """The representation of the object so that it can be used as an
@@ -63,9 +65,7 @@ class MachineUnit():
             f" has been a cost of: {self.cost:,}. \n" +\
             f"It can {self.augment} {self.augment_potency} the " +\
             "following inputs: " +\
-            f"{chr(10)}{chr(10).join(self.processable_inputs)}" +\
-            "It has a shape: \n" +\
-            f"{chr(10)}{chr(10).join(self.shape)}"
+            f"{chr(10)}{chr(10).join(self.processable_inputs)}"
 
 
     def set_cost(self, new_cost):
@@ -123,6 +123,12 @@ class MachineUnit():
 
         self.capacity = new_capacity
 
+
+    def set_turns_to_process(self, new_turns_to_process):
+        """Allows the ability to manually set the degree to which the materials
+        the machine process are augmented"""
+
+        self.turns_to_process = new_turns_to_process
 
     def add_processable_input(self, new_processable_inputs):
         """Allows the ability to add an item to the processable inputs"""

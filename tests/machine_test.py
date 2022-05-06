@@ -25,6 +25,7 @@ def test_machine_object_shape():
     assert basic_machine.augment == "No Augmentation"
     assert basic_machine.augment_potency == 0
     assert basic_machine.capacity == 0
+    assert basic_machine.turns_to_process == 0
 
     basic_machine = machines.MachineUnit(
         cost = 100,
@@ -34,7 +35,8 @@ def test_machine_object_shape():
         processable_inputs = ["Testonium", "Testadon"],
         augment = "Melt",
         augment_potency = 3,
-        capacity = 40)
+        capacity = 40,
+        turns_to_process = 4)
     assert basic_machine.cost == 100
     assert basic_machine.size == 5
     assert basic_machine.owner == "Player 1"
@@ -44,6 +46,7 @@ def test_machine_object_shape():
     assert basic_machine.augment == "Melt"
     assert basic_machine.augment_potency == 3
     assert basic_machine.capacity == 40
+    assert basic_machine.turns_to_process == 4
 
 
 def test_machine_altering_shape():
@@ -57,7 +60,8 @@ def test_machine_altering_shape():
         processable_inputs = ["Testonium", "Testadon"],
         augment = "Melt",
         augment_potency = 3,
-        capacity = 40)
+        capacity = 40,
+        turns_to_process = 4)
 
     basic_machine.set_cost(10)
     basic_machine.set_owner("Player 2")
@@ -67,6 +71,7 @@ def test_machine_altering_shape():
     basic_machine.set_augment("Strengthen")
     basic_machine.set_augment_potency(5)
     basic_machine.set_capacity(50)
+    basic_machine.set_turns_to_process(5)
 
     assert basic_machine.cost == 10
     assert basic_machine.size == 3
@@ -78,6 +83,7 @@ def test_machine_altering_shape():
     assert basic_machine.augment == "Strengthen"
     assert basic_machine.augment_potency == 5
     assert basic_machine.capacity == 50
+    assert basic_machine.turns_to_process == 5
 
     basic_machine.add_processable_input("Testanium")
     assert basic_machine.processable_inputs ==  set(["Retestonium",

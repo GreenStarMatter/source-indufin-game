@@ -476,3 +476,64 @@ The following four items need to be completed to wrap up the processor class.
 - Need to make a collect payload method which will wipe output_payload, the input_payload, and set the flag to stop processing.
 - Need to make a start processing method which takes the machines turns to produce as an internal variable which indicates whether the output_payload is ready.
 - Need to make a simple counter function which decrements the internal variable which keeps track of the turns until the output is ready (4,3,2, 1 = Next, 0 = Now, -1 = Empty).
+
+#### Progress 5/5/2022 6:43 pm
+- TODO 1: Don't forget to create ReadME!
+- TODO 3: Don't forget turn phase logic!
+- TODO 4: Create a ledger class, this was going to be a bank; however, I believe this can be more general purpose for tracking machines and materials as well.
+- EXPAND 1: Expand test suite and restrict object inputs!  Also upgrade docustrings when back in test scripts.  It will be easier to write documentation because I will have a better idea of how to distinguish/categorize them
+- EXPAND 2: Add capacity attribute to machines
+- EXPAND 3: Add palette logic to processors
+- EXPAND 4: Add transfer logic to processors
+- EXPAND 5: Add consolidate method which moves all accounts held into one account.  Potentially put this in a new bank object.
+- EXPAND 6: Add ability to remove sell/buy transactions from vendor.  Likely won't be extremely necessary, as right now I can just deplete their stocks.  It may be useful during gameplay to see what actions they can perform at a glance.
+- EXPAND 7: Add transaction class.  This would standardize the transaction form and make the updates to other class objects much more clean.
+- EXPAND 8: Add catalogue class.  This would take complexity away from vendor classes and make it easier to track items.
+- REWORK 1: Replace Pandas catalogue with named tuple, may do this in conjunction with EXPAND 8
+- REWORK 2: Rename internal methods with leading underscore (machines, accounts, and all testing)
+- REWORK 3: Decide if objects should be held by other objects or just references.  So far vendors are more of references as they are mimicking a catalogue (wouldn't actually have the item, but could source it).  The accounts probably should be direct references to objects as they are being held by each vendor.
+- REWORK 4:  Change MoneyAccount to use objects on dunder methods
+- REWORK 5:  Move non-self-referential functions out of classes (vendor).  This may be easier accomplished by making the catalogue and transaction classes.  This is a workable short term solution.
+- REWORK 6: Change grid coordinate placement.  These nested loops are pretty messy.
+- NOTE 1: I have decided to keep the player as a vendor, but will afford them special abilities to make decisions.  This will hopefully cut down on needed code.  May just extend the vendor class to accept user input and allow factory interaction.
+- IDEA 1: I am having fumbling a bit when looking back through my tests, this feels much more manual than it should be.  It would be great if I could pull all the docustrings and file directories into a relational data structure for a quick view and indexing.  I think this would greatly help with globally scrolling through quickly summarizing the test suite.
+
+Looking back at development queue, I think there are going to be some key updates I need to make before this game is really playable.  I need to be able to transfer to/from processors and add capacity to machines.  These shouldn't be overwhelming updates, but I think they will be vital.  I'm going to do these first.  Capacity update to machines was very quick.  I need to implement some protection logic in processors to limit from too much material being placed in a processor.  Need to do this by having an input_payload size.  I was going to add in processor logic to pass to next processor; however, I think I should just make a "move" function which the player is in control of.  The processor can just have a flag which indicates that the output material is ready (probably should destroy the input material at that time).
+
+The following four items need to be completed to wrap up the processor class.
+- Need to verify tests in processor_test.
+- Need to set flag that says output_payload is ready (start processing/stop processing).
+- Need to make a collect payload method which will wipe output_payload, the input_payload, and set the flag to stop processing.
+- Need to make a start processing method which takes the machines turns to produce as an internal variable which indicates whether the output_payload is ready.
+- Need to make a simple counter function which decrements the internal variable which keeps track of the turns until the output is ready (4,3,2, 1 = Next, 0 = Now, -1 = Empty).
+
+
+I think turns to produce should be an attribute of machines which is passed to the processor.  Realizing that I'm struggling with a lot of integration... these are from poorly defined and flushed out requirements from the stakeholder who is also me.  Next time it will be easier if I spend a bit more time thinking through the early design steps, but then again I've never developed a game before and I'm trying to work as quickly as possible.  I think it's still going well all things considered.
+
+- Need to verify tests in processor_test.
+- Need to add processing time to machines, and worm this back through to the processor and the vendor catalogue (would be a vital decision in picking a machine).
+- Need to update testing for new attribute.
+
+
+Just finished adding processing time to machines and updating machine testing.  Need to update vendor and vendor testing, need to update processor and processor testing.  Finished adding to catalogue and updating tests.  Updated processor with new logic.  Need to add processing tests to better get handle on logic.
+
+#### Progress 5/5/2022 7:31 pm
+- TODO 1: Don't forget to create ReadME!
+- TODO 3: Don't forget turn phase logic!
+- TODO 4: Create a ledger class, this was going to be a bank; however, I believe this can be more general purpose for tracking machines and materials as well.
+- EXPAND 1: Expand test suite and restrict object inputs!  Also upgrade docustrings when back in test scripts.  It will be easier to write documentation because I will have a better idea of how to distinguish/categorize them
+- EXPAND 3: Add palette logic to processors
+- EXPAND 4: Add transfer logic to processors
+- EXPAND 5: Add consolidate method which moves all accounts held into one account.  Potentially put this in a new bank object.
+- EXPAND 6: Add ability to remove sell/buy transactions from vendor.  Likely won't be extremely necessary, as right now I can just deplete their stocks.  It may be useful during gameplay to see what actions they can perform at a glance to avoid clutter.
+- EXPAND 7: Add transaction class.  This would standardize the transaction form and make the updates to other class objects much more clean.
+- EXPAND 8: Add catalogue class.  This would take complexity away from vendor classes and make it easier to track items.
+- REWORK 1: Replace Pandas catalogue with named tuple, may do this in conjunction with EXPAND 8
+- REWORK 2: Rename internal methods with leading underscore (machines, accounts, and all testing)
+- REWORK 3: Decide if objects should be held by other objects or just references.  So far vendors are more of references as they are mimicking a catalogue (wouldn't actually have the item, but could source it).  The accounts probably should be direct references to objects as they are being held by each vendor.
+- REWORK 4:  Change MoneyAccount to use objects on dunder methods
+- REWORK 5:  Move non-self-referential functions out of classes (vendor).  This may be easier accomplished by making the catalogue and transaction classes.  This is a workable short term solution.
+- NOTE 1: I have decided to keep the player as a vendor, but will afford them special abilities to make decisions.  This will hopefully cut down on needed code.  May just extend the vendor class to accept user input and allow factory interaction.
+- IDEA 1: I am fumbling a bit when looking back through my tests, this feels much more manual than it should be.  It would be great if I could pull all the docustrings and file directories into a relational data structure for a quick view and indexing.  I think this would greatly help with globally scrolling through quickly summarizing the test suite.
+
+Testing for processor has been updated!  Just need to relint project and retest before pushing to GitHub!  Linted and retested, pushing to GitHub!  Finally ready for the turn phase logic.
