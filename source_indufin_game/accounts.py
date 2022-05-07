@@ -133,10 +133,11 @@ class MoneyAccount():
             #send money to seller
             #deduct money from account
             order_cost = update_df["stock"].values * update_df["cost"].values
+            order_cost = order_cost[0]
             seller.add_deposit_amount(order_cost)
             self.remove_expense_amount(order_cost)
             print("Transaction Successful!")
         else:
             print("Not enough money for transaction")
-        print(f"self.owner new balance is: f{self.balance}")
-        print(f"seller.owner new balance is: f{seller.balance}")
+        print(f"{self.owner} new balance is: {self.balance}")
+        print(f"{seller.owner} new balance is: {seller.balance}")

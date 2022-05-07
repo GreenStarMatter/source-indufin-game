@@ -121,19 +121,28 @@ class ProcessorUnit():
                                      new_mechanism.processable_inputs)
 
 
-    def set_payload(self, new_payload):
-        """If payload is allowable, then input it to processor.
-        Define the output payload as well."""
+    def verify_payload_machine_viability_tests(self, new_payload):
+        """Verify payload allowable."""
+
+        payload_allowable = True
         if not self._check_new_payload(new_payload):
             print(f"Payload: {new_payload.material_name}")
             print(f"Nonviable payload, please select from{chr(10)}"+\
                   f"{chr(10).join(self.mechanism.processable_inputs)}")
-
-        elif not self.verify_machine_can_handle_load():
+            payload_allowable = False
+        if not self.verify_machine_can_handle_load():
             print(f"Payload: {new_payload[0].material_name}, {new_payload[1]}")
             print(f"Payload over machine capcity, {self.mechanism.capacity}"+\
                   f"{chr(10).join(self.mechanism.processable_inputs)}")
-        else:
+            payload_allowable = False
+
+        return payload_allowable
+
+
+    def set_payload(self, new_payload):
+        """If payload is allowable, then input it to processor.
+        Define the output payload as well."""
+        if self.verify_payload_machine_viability_tests(new_payload):
             self.input_payload = new_payload
             self._define_output_payload()
 

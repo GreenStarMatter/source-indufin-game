@@ -57,10 +57,12 @@ def test_vendor_transaction_successful():
         account = accounts.MoneyAccount(),
         catalogue = buyer_df
         )
-    seller_df = pd.DataFrame(buyer_catalogue, columns = vendor_columns)
+    seller_catalogue = [["Sell", "Testonium", "Bar", 0, 50, 100, -1]]
+    seller_catalogue.append(["Sell", "Testulator", "Melt", 3, 3, 100000, 3])    
+    seller_df = pd.DataFrame(seller_catalogue, columns = vendor_columns)
     seller_vendor = vendors.Vendor(
-        vendor_name = "Vendor 1",
-        vendor_type = "Buyer",
+        vendor_name = "Vendor 2",
+        vendor_type = "Seller",
         account = accounts.MoneyAccount(),
         catalogue = seller_df
         )
@@ -77,8 +79,8 @@ def test_vendor_transaction_successful():
     new_buyer_catalogue.append(["Buy", "Testulator", "Melt", 3, 3, 100000, 3])
     new_buyer_df = pd.DataFrame(new_buyer_catalogue, columns = vendor_columns)
     assert buyer_vendor.catalogue.equals(new_buyer_df)
-    new_seller_catalogue = [["Buy", "Testonium", "Bar", 0, 48, 100, -1]]
-    new_seller_catalogue.append(["Buy", "Testulator", "Melt", 3, 3, 100000, 3])
+    new_seller_catalogue = [["Sell", "Testonium", "Bar", 0, 48, 100, -1]]
+    new_seller_catalogue.append(["Sell", "Testulator", "Melt", 3, 3, 100000, 3])
     new_seller_df = pd.DataFrame(new_seller_catalogue,
                                  columns = vendor_columns)
     assert seller_vendor.catalogue.equals(new_seller_df)
@@ -96,10 +98,12 @@ def test_vendor_transaction_insufficient_funds():
         account = accounts.MoneyAccount(),
         catalogue = buyer_df
         )
-    seller_df = pd.DataFrame(buyer_catalogue, columns = vendor_columns)
+    seller_catalogue = [["Sell", "Testonium", "Bar", 0, 1, 100, -1]]
+    seller_catalogue.append(["Sell", "Testulator", "Melt", 3, 3, 100000, 3])    
+    seller_df = pd.DataFrame(seller_catalogue, columns = vendor_columns)
     seller_vendor = vendors.Vendor(
-        vendor_name = "Vendor 1",
-        vendor_type = "Buyer",
+        vendor_name = "Vendor 2",
+        vendor_type = "Seller",
         account = accounts.MoneyAccount(),
         catalogue = seller_df
         )
@@ -115,6 +119,7 @@ def test_vendor_transaction_insufficient_funds():
     assert buyer_vendor.catalogue.equals(buyer_df)
     assert seller_vendor.catalogue.equals(seller_df)
 
+
 def test_vendor_transaction_insufficient_stock():
     """Test setting variables"""
     vendor_columns = ["vendor_type", "product_type", "form",
@@ -128,10 +133,12 @@ def test_vendor_transaction_insufficient_stock():
         account = accounts.MoneyAccount(),
         catalogue = buyer_df
         )
-    seller_df = pd.DataFrame(buyer_catalogue, columns = vendor_columns)
+    seller_catalogue = [["Sell", "Testonium", "Bar", 0, 1, 100, -1]]
+    seller_catalogue.append(["Sell", "Testulator", "Melt", 3, 3, 100000, 3])    
+    seller_df = pd.DataFrame(seller_catalogue, columns = vendor_columns)
     seller_vendor = vendors.Vendor(
-        vendor_name = "Vendor 1",
-        vendor_type = "Buyer",
+        vendor_name = "Vendor 2",
+        vendor_type = "Seller",
         account = accounts.MoneyAccount(),
         catalogue = seller_df
         )

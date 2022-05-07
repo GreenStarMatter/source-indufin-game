@@ -20,7 +20,7 @@ class Vendor():
         self.vendor_name = vendor_name
         self.vendor_type = vendor_type
         self.account = account
-        self.temporary_index_store = -1
+        self._is_player = self.vendor_name.split(" ") == "Player"
         if not catalogue.empty:
             self.catalogue = catalogue
         else:
@@ -53,20 +53,28 @@ class Vendor():
         index_df = verify_catalogue_record_df[index_columns].copy()
         exists = pd.merge(self.catalogue.reset_index(drop = False), index_df,
                           how = 'inner', on = index_columns)
-        self.temporary_index_store = list(exists["index"])
-        return not exists.empty
+        #TODO: Instead of equating, just move this to return value
+        #self.temporary_index_store = list(exists["index"])
+        #return not exists.empty
+        return list(exists["index"])
 
-    def _in_place_add_to_catalogue_stock(self, update_df):
-        replace_row = self.catalogue.iloc[self.temporary_index_store].copy()
+    def _in_place_add_to_catalogue_stock(self, update_df,
+                                         temporary_index_store):
+        #TODO: Put Filtering logic here to get index value
+        #Change temporary_index_store to local variable
+        replace_row = self.catalogue.iloc[temporary_index_store].copy()
         replace_row["stock"] += update_df["stock"].values
-        self.catalogue.iloc[self.temporary_index_store] = replace_row
+        self.catalogue.iloc[temporary_index_store] = replace_row
 
 
-    def _in_place_subtract_from_catalogue_stock(self, update_df):
-        replace_row = self.catalogue.iloc[self.temporary_index_store].copy()
+    def _in_place_subtract_from_catalogue_stock(self, update_df,
+                                                temporary_index_store):
+        #TODO: Put Filtering logic here to get index value
+        #Change temporary_index_store to local variable
+        replace_row = self.catalogue.iloc[temporary_index_store].copy()
         replace_row["stock"] -= update_df["stock"].values
-        if replace_row["stock"].values > 0:
-            self.catalogue.iloc[self.temporary_index_store] = replace_row
+        if replace_row["stock"].values >= 0:
+            self.catalogue.iloc[temporary_index_store] = replace_row
         else:
             print("Not enough stock to complete sale, off by:"+
                   f"{-replace_row['stock'].values[0]}")
@@ -80,23 +88,35 @@ class Vendor():
         If it does not, then purchase add a new catalogue row
         Sell: Sell reduces stock in catalogue"""
 
+        update_successful = True
+        temporary_index_store = self.check_records_exist(update_df)
         if method == "Purchase":
-            if self.check_records_exist(update_df):
-                self._in_place_add_to_catalogue_stock(update_df)
+            if temporary_index_store:
+                self._in_place_add_to_catalogue_stock(update_df,
+                                                      temporary_index_store)
             else:
-                self.catalogue = pd.concat([self.catalogue, update_df])
+                self.catalogue = pd.concat([self.catalogue, update_df],
+                                           ignore_index = True)
         elif method == "Sell":
-            if self.check_records_exist(update_df):
-                self._in_place_subtract_from_catalogue_stock(update_df)
+            if temporary_index_store:
+                self._in_place_subtract_from_catalogue_stock(
+                    update_df,
+                    temporary_index_store
+                    )
             else:
+                update_successful = False
                 print(f"Item does not exist in catalogue:{chr(10)}{update_df}")
-
+        return update_successful
     def purchase_from_vendor(self, selling_vendor, update_df):
         """This function allows a the current vendor object to purchase
         from another vendor object.  Currently it will only work where all
         are purchasers.  May implement a sell to vendor in future."""
+
+        transaction_complete = False
         sell_condition = 0
-        if selling_vendor.sale_is_possible(selling_vendor, update_df):
+        seller_update_df = update_df.copy()
+        seller_update_df["vendor_type"] = "Sell"
+        if selling_vendor.sale_is_possible(seller_update_df):
             sell_condition += 1
         else:
             print("Seller stock too low")
@@ -107,21 +127,27 @@ class Vendor():
             print("Not enough buyer money for transaction")
 
         if sell_condition == 2:
+            transaction_complete = True
             self.update_catalogue("Purchase", update_df)
-            selling_vendor.update_catalogue("Sell", update_df)
+            selling_vendor.update_catalogue("Sell", seller_update_df)
             self.account.purchase_from(selling_vendor.account, update_df)
             print("Item and Financial Transaction Completed")
         else:
             print("Transaction Failed")
 
+        return transaction_complete
 
-    def sale_is_possible(self, selling_vendor, update_df):
+
+    def sale_is_possible(self, update_df):
         """Verifies external vendor has enough supply for transaction"""
 
         sale_status = False
-        if selling_vendor.check_records_exist(update_df):
-            seller_stock = selling_vendor.catalogue\
-                .iloc[selling_vendor.temporary_index_store]["stock"].values
+        temporary_index_store = self.check_records_exist(update_df)
+        if temporary_index_store:
+            #TODO: Put Filtering logic here to get index value
+            #Change temporary_index_store to local variable
+            seller_stock = self.catalogue\
+                .iloc[temporary_index_store]["stock"].values
             stock_balance = seller_stock - update_df["stock"].values
             if stock_balance >= 0:
                 sale_status = True
