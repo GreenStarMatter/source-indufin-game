@@ -62,7 +62,8 @@ class MachineUnit():
         as a representation"""
 
         return f"The machine {self.machine_name} of {self.owner}" +\
-            f" has been a cost of: {self.cost:,}. \n" +\
+            f" has a cost of: {self.cost:,}. \n" +\
+            f" has a capacity of: {self.capacity:,}. \n" +\
             f"It can {self.augment} {self.augment_potency} the " +\
             "following inputs: " +\
             f"{chr(10)}{chr(10).join(self.processable_inputs)}"

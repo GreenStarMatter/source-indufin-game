@@ -1,0 +1,10 @@
+Machine Index,Machine,Capacity,Turns To Produce,Size,Cost,Unit Cost of Material,Unit Cost of Processed Material,Max Input Cost,Max Output Gross,Max Gain Per Process,Profit per Turn,Scale by 4,Scale by 16
+T1,Testulator,5,1,1,60,5,8,25,40,15,15,60,240
+E1,Exbopulator,12,2,1,48,4,6,48,72,24,12,48,192
+P1,Pilomatic,50,3,1,67,3,4,150,200,50,16.66666667,66.66666667,266.6666667
+T2,Testulator,25,1,4,300,5,8,125,200,75,75,300,1200
+E2,Exbopulator,50,2,4,200,4,6,200,300,100,50,200,800
+P2,Pilomatic,100,3,4,134,3,4,300,400,100,33.33333333,133.3333333,533.3333333
+T3,Testulator,100,1,16,1200,5,8,500,800,300,300,1200,4800
+E3,Exbopulator,200,2,16,800,4,6,800,1200,400,200,800,3200
+P3,Pilomatic,150,3,16,200,3,4,450,600,150,50,200,800

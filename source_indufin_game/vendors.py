@@ -36,8 +36,9 @@ class Vendor():
                           "potency",
                           "stock",
                           "cost",
-                          "process_time"]
-        vendor_catalogue = [["None", "None", "None", 0, 0, 0, 0]]
+                          "process_time",
+                          "capacity"]
+        vendor_catalogue = [["None", "None", "None", 0, 0, 0, 0, 0]]
         return pd.DataFrame(vendor_catalogue, columns = vendor_columns)
 
 
@@ -49,19 +50,14 @@ class Vendor():
 
         #maybe put temp variable to keep index of row to be changed?
         index_columns = ["vendor_type", "product_type",
-                         "form", "potency", "process_time"]
+                         "form", "potency", "process_time", "capacity"]
         index_df = verify_catalogue_record_df[index_columns].copy()
         exists = pd.merge(self.catalogue.reset_index(drop = False), index_df,
                           how = 'inner', on = index_columns)
-        #TODO: Instead of equating, just move this to return value
-        #self.temporary_index_store = list(exists["index"])
-        #return not exists.empty
         return list(exists["index"])
 
     def _in_place_add_to_catalogue_stock(self, update_df,
                                          temporary_index_store):
-        #TODO: Put Filtering logic here to get index value
-        #Change temporary_index_store to local variable
         replace_row = self.catalogue.iloc[temporary_index_store].copy()
         replace_row["stock"] += update_df["stock"].values
         self.catalogue.iloc[temporary_index_store] = replace_row
@@ -69,8 +65,6 @@ class Vendor():
 
     def _in_place_subtract_from_catalogue_stock(self, update_df,
                                                 temporary_index_store):
-        #TODO: Put Filtering logic here to get index value
-        #Change temporary_index_store to local variable
         replace_row = self.catalogue.iloc[temporary_index_store].copy()
         replace_row["stock"] -= update_df["stock"].values
         if replace_row["stock"].values >= 0:

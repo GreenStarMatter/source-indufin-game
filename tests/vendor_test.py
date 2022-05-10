@@ -20,9 +20,9 @@ def test_vendor_object_shape():
     assert basic_vendor.account
     #Shape: {Buy:{machine_name:[augment, augment_potency, stock/cap, cost]}}
     vendor_columns = ["vendor_type", "product_type", "form",
-                      "potency", "stock", "cost", "process_time"]
+                      "potency", "stock", "cost", "process_time", "capacity"]
     vendor_catalogue = [["None", "None", "None",
-                         0, 0, 0, 0]]
+                         0, 0, 0, 0, 0]]
     vendor_df = pd.DataFrame(vendor_catalogue, columns = vendor_columns)
     assert basic_vendor.catalogue.equals(vendor_df)
 
@@ -30,9 +30,9 @@ def test_vendor_object_shape():
 def test_vendor_altering_shape():
     """Test setting variables"""
     vendor_columns = ["vendor_type", "product_type", "form",
-                      "potency", "stock", "cost", "process_time"]
-    vendor_catalogue = [["Buy", "Testonium", "Bar", 0, 50, 100, -1]]
-    vendor_catalogue.append(["Buy", "Testulator", "Melt", 3, 3, 100000, 3])
+                      "potency", "stock", "cost", "process_time", "capacity"]
+    vendor_catalogue = [["Buy", "Testonium", "Bar", 0, 50, 100, -1, -1]]
+    vendor_catalogue.append(["Buy", "Testulator", "Melt", 3, 3, 100000, 3, 1])
     vendor_df = pd.DataFrame(vendor_catalogue, columns = vendor_columns)
     basic_vendor = vendors.Vendor(
         vendor_name = "Vendor 1",
@@ -47,9 +47,9 @@ def test_vendor_altering_shape():
 def test_vendor_transaction_successful():
     """Test setting variables"""
     vendor_columns = ["vendor_type", "product_type", "form",
-                      "potency", "stock", "cost", "process_time"]
-    buyer_catalogue = [["Buy", "Testonium", "Bar", 0, 50, 100, -1]]
-    buyer_catalogue.append(["Buy", "Testulator", "Melt", 3, 3, 100000, 3])
+                      "potency", "stock", "cost", "process_time", "capacity"]
+    buyer_catalogue = [["Buy", "Testonium", "Bar", 0, 50, 100, -1, -1]]
+    buyer_catalogue.append(["Buy", "Testulator", "Melt", 3, 3, 100000, 3, 1])
     buyer_df = pd.DataFrame(buyer_catalogue, columns = vendor_columns)
     buyer_vendor = vendors.Vendor(
         vendor_name = "Vendor 1",
@@ -57,8 +57,8 @@ def test_vendor_transaction_successful():
         account = accounts.MoneyAccount(),
         catalogue = buyer_df
         )
-    seller_catalogue = [["Sell", "Testonium", "Bar", 0, 50, 100, -1]]
-    seller_catalogue.append(["Sell", "Testulator", "Melt", 3, 3, 100000, 3])    
+    seller_catalogue = [["Sell", "Testonium", "Bar", 0, 50, 100, -1, -1]]
+    seller_catalogue.append(["Sell", "Testulator", "Melt", 3, 3, 100000, 3, 1])    
     seller_df = pd.DataFrame(seller_catalogue, columns = vendor_columns)
     seller_vendor = vendors.Vendor(
         vendor_name = "Vendor 2",
@@ -69,18 +69,20 @@ def test_vendor_transaction_successful():
     buyer_vendor.account.set_balance(1000)
     seller_vendor.account.set_balance(1000)
     update_columns = ["vendor_type", "product_type", "form",
-                      "potency", "stock", "cost", "process_time"]
+                      "potency", "stock", "cost", "process_time", "capacity"]
     catalogue_update = [["Buy", "Testonium", "Bar",
-                        0, 2, 100, -1]]
+                        0, 2, 100, -1, -1]]
     update_df = pd.DataFrame(catalogue_update, columns = update_columns)
     buyer_vendor.purchase_from_vendor(seller_vendor, update_df)
 
-    new_buyer_catalogue = [["Buy", "Testonium", "Bar", 0, 52, 100, -1]]
-    new_buyer_catalogue.append(["Buy", "Testulator", "Melt", 3, 3, 100000, 3])
+    new_buyer_catalogue = [["Buy", "Testonium", "Bar", 0, 52, 100, -1, -1]]
+    new_buyer_catalogue.append(["Buy", "Testulator", "Melt", 3,
+                                3, 100000, 3, 1])
     new_buyer_df = pd.DataFrame(new_buyer_catalogue, columns = vendor_columns)
-    assert buyer_vendor.catalogue.equals(new_buyer_df)
-    new_seller_catalogue = [["Sell", "Testonium", "Bar", 0, 48, 100, -1]]
-    new_seller_catalogue.append(["Sell", "Testulator", "Melt", 3, 3, 100000, 3])
+    pd.set_option('max_columns', None)
+    new_seller_catalogue = [["Sell", "Testonium", "Bar", 0, 48, 100, -1, -1]]
+    new_seller_catalogue.append(["Sell", "Testulator", "Melt",
+                                 3, 3, 100000, 3, 1])
     new_seller_df = pd.DataFrame(new_seller_catalogue,
                                  columns = vendor_columns)
     assert seller_vendor.catalogue.equals(new_seller_df)
@@ -88,9 +90,9 @@ def test_vendor_transaction_successful():
 def test_vendor_transaction_insufficient_funds():
     """Test setting variables"""
     vendor_columns = ["vendor_type", "product_type", "form",
-                      "potency", "stock", "cost", "process_time"]
-    buyer_catalogue = [["Buy", "Testonium", "Bar", 0, 50, 100, -1]]
-    buyer_catalogue.append(["Buy", "Testulator", "Melt", 3, 3, 100000, 3])
+                      "potency", "stock", "cost", "process_time", "capacity"]
+    buyer_catalogue = [["Buy", "Testonium", "Bar", 0, 50, 100, -1, -1]]
+    buyer_catalogue.append(["Buy", "Testulator", "Melt", 3, 3, 100000, 3, 1])
     buyer_df = pd.DataFrame(buyer_catalogue, columns = vendor_columns)
     buyer_vendor = vendors.Vendor(
         vendor_name = "Vendor 1",
@@ -98,8 +100,8 @@ def test_vendor_transaction_insufficient_funds():
         account = accounts.MoneyAccount(),
         catalogue = buyer_df
         )
-    seller_catalogue = [["Sell", "Testonium", "Bar", 0, 1, 100, -1]]
-    seller_catalogue.append(["Sell", "Testulator", "Melt", 3, 3, 100000, 3])    
+    seller_catalogue = [["Sell", "Testonium", "Bar", 0, 1, 100, -1, -1]]
+    seller_catalogue.append(["Sell", "Testulator", "Melt", 3, 3, 100000, 3, 1])    
     seller_df = pd.DataFrame(seller_catalogue, columns = vendor_columns)
     seller_vendor = vendors.Vendor(
         vendor_name = "Vendor 2",
@@ -110,9 +112,9 @@ def test_vendor_transaction_insufficient_funds():
     buyer_vendor.account.set_balance(150)
     seller_vendor.account.set_balance(1000)
     update_columns = ["vendor_type", "product_type", "form",
-                      "potency", "stock", "cost", "process_time"]
+                      "potency", "stock", "cost", "process_time", "capacity"]
     catalogue_update = [["Buy", "Testonium", "Bar",
-                        0, 2, 100, -1]]
+                        0, 2, 100, -1, -1]]
     update_df = pd.DataFrame(catalogue_update, columns = update_columns)
     buyer_vendor.purchase_from_vendor(seller_vendor, update_df)
 
@@ -123,9 +125,9 @@ def test_vendor_transaction_insufficient_funds():
 def test_vendor_transaction_insufficient_stock():
     """Test setting variables"""
     vendor_columns = ["vendor_type", "product_type", "form",
-                      "potency", "stock", "cost", "process_time"]
-    buyer_catalogue = [["Buy", "Testonium", "Bar", 0, 1, 100, -1]]
-    buyer_catalogue.append(["Buy", "Testulator", "Melt", 3, 3, 100000, 3])
+                      "potency", "stock", "cost", "process_time", "capacity"]
+    buyer_catalogue = [["Buy", "Testonium", "Bar", 0, 1, 100, -1, -1]]
+    buyer_catalogue.append(["Buy", "Testulator", "Melt", 3, 3, 100000, 3, 1])
     buyer_df = pd.DataFrame(buyer_catalogue, columns = vendor_columns)
     buyer_vendor = vendors.Vendor(
         vendor_name = "Vendor 1",
@@ -133,8 +135,8 @@ def test_vendor_transaction_insufficient_stock():
         account = accounts.MoneyAccount(),
         catalogue = buyer_df
         )
-    seller_catalogue = [["Sell", "Testonium", "Bar", 0, 1, 100, -1]]
-    seller_catalogue.append(["Sell", "Testulator", "Melt", 3, 3, 100000, 3])    
+    seller_catalogue = [["Sell", "Testonium", "Bar", 0, 1, 100, -1, -1]]
+    seller_catalogue.append(["Sell", "Testulator", "Melt", 3, 3, 100000, 3, 1])    
     seller_df = pd.DataFrame(seller_catalogue, columns = vendor_columns)
     seller_vendor = vendors.Vendor(
         vendor_name = "Vendor 2",
@@ -145,9 +147,9 @@ def test_vendor_transaction_insufficient_stock():
     buyer_vendor.account.set_balance(1000)
     seller_vendor.account.set_balance(1000)
     update_columns = ["vendor_type", "product_type", "form",
-                      "potency", "stock", "cost", "process_time"]
+                      "potency", "stock", "cost", "process_time", "capacity"]
     catalogue_update = [["Buy", "Testonium", "Bar",
-                        0, 2, 100, -1]]
+                        0, 2, 100, -1, -1]]
     update_df = pd.DataFrame(catalogue_update, columns = update_columns)
     buyer_vendor.purchase_from_vendor(seller_vendor, update_df)
 

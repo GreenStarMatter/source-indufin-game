@@ -75,7 +75,8 @@ def test_processor_what_if_new_material():
         processable_inputs = ["Testonium", "Testadon"],
         augment = "Melt",
         augment_potency = 5,
-        turns_to_process = 1)
+        turns_to_process = 1,
+        capacity = 30)
     basic_processor = processors.ProcessorUnit(
         mechanism = basic_machine
         )

@@ -630,7 +630,7 @@ Boiled game down into 7 fundamental transactions.  Completed all 7 already.  Pre
 
 All that's really needed to do is to formalize the transaction logic and create a play flow around it!
 
-#### Progress 5/7/2022 4:38 pm
+#### Progress 5/7/2022 5:35 pm
 - TODO 1: Don't forget to create ReadME!
 - TODO 3: Don't forget turn phase logic!
 - TODO 4: Create a ledger class, this was going to be a bank; however, I believe this can be more general purpose for tracking machines and materials as well.
@@ -652,3 +652,161 @@ All that's really needed to do is to formalize the transaction logic and create 
 - REWORK 8: I think a weird buy/sell bug is lingering with multiple similar purchases for the player.  Some testing will be needed to verify, but it's worth tracking as it would cause multiple catalogue items containing the same category of data.
 - NOTE 1: I have decided to keep the player as a vendor, but will afford them special abilities to make decisions.  This will hopefully cut down on needed code.  May just extend the vendor class to accept user input and allow factory interaction.
 - IDEA 1: I am fumbling a bit when looking back through my tests, this feels much more manual than it should be.  It would be great if I could pull all the docustrings and file directories into a relational data structure for a quick view and indexing.  I think this would greatly help with globally scrolling through quickly summarizing the test suite.
+
+
+Almost finished this... have to remove all of the references since the functions are in the same subpackage.  Transaction logic formalized!  All I need to do is get the play flow logic and minor bugs down and I'm done!
+
+#### Progress 5/8/2022 1:00 pm
+- TODO 1: Don't forget to create ReadME!
+- TODO 3: Don't forget turn phase logic!
+- TODO 4: Create a ledger class, this was going to be a bank; however, I believe this can be more general purpose for tracking machines and materials as well.
+- EXPAND 1: Expand test suite and restrict object inputs!  Also upgrade docustrings when back in test scripts.  It will be easier to write documentation because I will have a better idea of how to distinguish/categorize them
+- EXPAND 3: Add palette logic to processors
+- EXPAND 4: Add transfer logic to processors
+- EXPAND 5: Add consolidate method which moves all accounts held into one account.  Potentially put this in a new bank object.
+- EXPAND 6: Add ability to remove sell/buy transactions from vendor.  Likely won't be extremely necessary, as right now I can just deplete their stocks.  It may be useful during gameplay to see what actions they can perform at a glance to avoid clutter.
+- EXPAND 7: Add transaction class.  This would standardize the transaction form and make the updates to other class objects much more clean.
+- EXPAND 8: Add catalogue class.  This would take complexity away from vendor classes and make it easier to track items.
+- EXPAND 9: I have abstracted a lot of transactional inputs by just supplying an update_df.  I will need to create this each time with inputs.  Will be a series of functions, but otherwise will be very easy.  This is natural stuff I was planning on doing in the play flow.
+- REWORK 1: Replace Pandas catalogue with named tuple, may do this in conjunction with EXPAND 8
+- REWORK 2: Rename internal methods with leading underscore (machines, accounts, and all testing)
+- REWORK 3: Decide if objects should be held by other objects or just references.  So far vendors are more of references as they are mimicking a catalogue (wouldn't actually have the item, but could source it).  The accounts probably should be direct references to objects as they are being held by each vendor.
+- REWORK 4:  Change MoneyAccount to use objects on dunder methods
+- REWORK 5:  Move non-self-referential functions out of classes (vendor).  This may be easier accomplished by making the catalogue and transaction classes.  This is a workable short term solution.
+- REWORK 6: Fix improper sell injection when no match is found.  May only happen in the case that a Buy is found with no Sell in the catalogue.
+- REWORK 7: 0 stock items are causing difficulty with existence function as the line technically exists, but the vendor has no stock
+- REWORK 8: I think a weird buy/sell bug is lingering with multiple similar purchases for the player.  Some testing will be needed to verify, but it's worth tracking as it would cause multiple catalogue items containing the same category of data.
+- NOTE 1: I have decided to keep the player as a vendor, but will afford them special abilities to make decisions.  This will hopefully cut down on needed code.  May just extend the vendor class to accept user input and allow factory interaction.
+- IDEA 1: I am fumbling a bit when looking back through my tests, this feels much more manual than it should be.  It would be great if I could pull all the docustrings and file directories into a relational data structure for a quick view and indexing.  I think this would greatly help with globally scrolling through quickly summarizing the test suite.
+
+Decided to close out Spyder and re-open.  It gets weirdly buggy when it's been running for too long.  I think it just tries to keep up with all of the annotating and it's too much animation when new code is added or removed.  Going through the player decision flow.  This was becoming highly nested if statements and while loops.  I decided to break this down into functions.  This won't reflect in my GitHub pushes, but I am building a branch of the while loop all the way down.  Then I move from the end of the decision branches and roll the logic into a function.  I continue to roll up at every branch decision to get the functional framework which makes a lot of the other coding much easier for me.  I chose this method because I wasn't really sure what the branches would look like.  I could have worked backwards from the transaction I wanted to complete, but I wanted to work forwards from what the player would do to achieve the action.  I'm sure this will change once I start playing and finding things that annoy me/hamper the UX but I'd rather experience those things in motion.  This is also helping me keep the base logic more readable.
+
+
+
+#### Progress 5/8/2022 4:53 pm
+- TODO 1: Don't forget to create ReadME!
+- TODO 3: Don't forget turn phase logic!
+- TODO 4: Create a ledger class, this was going to be a bank; however, I believe this can be more general purpose for tracking machines and materials as well.
+- EXPAND 1: Expand test suite and restrict object inputs!  Also upgrade docustrings when back in test scripts.  It will be easier to write documentation because I will have a better idea of how to distinguish/categorize them
+- EXPAND 3: Add palette logic to processors
+- EXPAND 4: Add transfer logic to processors
+- EXPAND 5: Add consolidate method which moves all accounts held into one account.  Potentially put this in a new bank object.
+- EXPAND 6: Add ability to remove sell/buy transactions from vendor.  Likely won't be extremely necessary, as right now I can just deplete their stocks.  It may be useful during gameplay to see what actions they can perform at a glance to avoid clutter.
+- EXPAND 7: Add transaction class.  This would standardize the transaction form and make the updates to other class objects much more clean.
+- EXPAND 8: Add catalogue class.  This would take complexity away from vendor classes and make it easier to track items.
+- EXPAND 9: I have abstracted a lot of transactional inputs by just supplying an update_df.  I will need to create this each time with inputs.  Will be a series of functions, but otherwise will be very easy.  This is natural stuff I was planning on doing in the play flow.
+- REWORK 1: Replace Pandas catalogue with named tuple, may do this in conjunction with EXPAND 8
+- REWORK 2: Rename internal methods with leading underscore (machines, accounts, and all testing)
+- REWORK 3: Decide if objects should be held by other objects or just references.  So far vendors are more of references as they are mimicking a catalogue (wouldn't actually have the item, but could source it).  The accounts probably should be direct references to objects as they are being held by each vendor.
+- REWORK 4:  Change MoneyAccount to use objects on dunder methods
+- REWORK 5:  Move non-self-referential functions out of classes (vendor).  This may be easier accomplished by making the catalogue and transaction classes.  This is a workable short term solution.
+- REWORK 6: Fix improper sell injection when no match is found.  May only happen in the case that a Buy is found with no Sell in the catalogue.
+- REWORK 7: 0 stock items are causing difficulty with existence function as the line technically exists, but the vendor has no stock
+- REWORK 8: I think a weird buy/sell bug is lingering with multiple similar purchases for the player.  Some testing will be needed to verify, but it's worth tracking as it would cause multiple catalogue items containing the same category of data.
+-  REWORK 9:  Put in is_processor_ready_for_input() method. Update corresponding logic in basic_tutorial.py in get_all_available_machines_for_placement.
+- NOTE 1: I have decided to keep the player as a vendor, but will afford them special abilities to make decisions.  This will hopefully cut down on needed code.  May just extend the vendor class to accept user input and allow factory interaction.
+- IDEA 1: I am fumbling a bit when looking back through my tests, this feels much more manual than it should be.  It would be great if I could pull all the docustrings and file directories into a relational data structure for a quick view and indexing.  I think this would greatly help with globally scrolling through quickly summarizing the test suite.
+
+
+I've decided to rename the functions to be more expressive.  They will indicate a player decision (or not) and the branch that was created.  Completed the buy/sell branch!  Last main branch to complete are the player/grid interactions!!  Already have the machine placement done.  Had a slight snag with materials and processing, I don't have a flag for if the processor is ready to accept new input.  Very simple fix, but right now I'm using an internal variable as a placeholder, putting in as REWORK 9.
+
+I finally got the game into a semi-working state!!!  I have some bad input handling, but that is easily fixable.  I've done some quick fixes just to see the logic flow and it appears to be working the way I intended.  Next I will develop some scrubbing functions for input and then I'll be ready to do a full play test and some UX!
+#### Progress 5/8/2022 10:00 pm
+- TODO 1: Don't forget to create ReadME!
+- TODO 3: Don't forget turn phase logic!
+- TODO 4: Create a ledger class, this was going to be a bank; however, I believe this can be more general purpose for tracking machines and materials as well.
+- EXPAND 1: Expand test suite and restrict object inputs!  Also upgrade docustrings when back in test scripts.  It will be easier to write documentation because I will have a better idea of how to distinguish/categorize them
+- EXPAND 3: Add palette logic to processors
+- EXPAND 4: Add transfer logic to processors
+- EXPAND 5: Add consolidate method which moves all accounts held into one account.  Potentially put this in a new bank object.
+- EXPAND 6: Add ability to remove sell/buy transactions from vendor.  Likely won't be extremely necessary, as right now I can just deplete their stocks.  It may be useful during gameplay to see what actions they can perform at a glance to avoid clutter.
+- EXPAND 7: Add transaction class.  This would standardize the transaction form and make the updates to other class objects much more clean.
+- EXPAND 8: Add catalogue class.  This would take complexity away from vendor classes and make it easier to track items.
+- EXPAND 9: I have abstracted a lot of transactional inputs by just supplying an update_df.  I will need to create this each time with inputs.  Will be a series of functions, but otherwise will be very easy.  This is natural stuff I was planning on doing in the play flow.
+- REWORK 1: Replace Pandas catalogue with named tuple, may do this in conjunction with EXPAND 8
+- REWORK 2: Rename internal methods with leading underscore (machines, accounts, and all testing)
+- REWORK 3: Decide if objects should be held by other objects or just references.  So far vendors are more of references as they are mimicking a catalogue (wouldn't actually have the item, but could source it).  The accounts probably should be direct references to objects as they are being held by each vendor.
+- REWORK 4:  Change MoneyAccount to use objects on dunder methods
+- REWORK 5:  Move non-self-referential functions out of classes (vendor).  This may be easier accomplished by making the catalogue and transaction classes.  This is a workable short term solution.
+- REWORK 6: Fix improper sell injection when no match is found.  May only happen in the case that a Buy is found with no Sell in the catalogue.
+- REWORK 7: 0 stock items are causing difficulty with existence function as the line technically exists, but the vendor has no stock
+- REWORK 8: I think a weird buy/sell bug is lingering with multiple similar purchases for the player.  Some testing will be needed to verify, but it's worth tracking as it would cause multiple catalogue items containing the same category of data.
+-  REWORK 9:  Put in is_processor_ready_for_input() method. Update corresponding logic in basic_tutorial.py in get_all_available_machines_for_placement.
+- NOTE 1: I have decided to keep the player as a vendor, but will afford them special abilities to make decisions.  This will hopefully cut down on needed code.  May just extend the vendor class to accept user input and allow factory interaction.
+- IDEA 1: I am fumbling a bit when looking back through my tests, this feels much more manual than it should be.  It would be great if I could pull all the docustrings and file directories into a relational data structure for a quick view and indexing.  I think this would greatly help with globally scrolling through quickly summarizing the test suite.
+
+Reviewing through and collecting BUGS.  Also keeping command strings to easily retest values:
+- COMMAND 1 (Buy Machine 5): 0,1,5,1
+- COMMAND 2 (Place Machine at Origin): 1,1,1,00
+- COMMAND 3 (Remove Machine at Origin): 1,2,0
+- COMMAND 4 (Sell Machine to Vendor): 0, 2, 5
+- COMMAND 5 (Buy 10 Units of Material 0): 0,1,0,10
+- COMMAND 6 (Place 10 Units of Material 0 into Machine 5 at Origin): 1,1,2,0,10
+
+Knocked down most bugs! Almost done with the Basic Tutorial!!  I just need to calculate what a semi-challenging game is and set all of the starting assets.  I have some wants to add on.  I really got on a roll and deviated from TDD.  I started a lot of functional programming as opposed to OOP and wanted to go really fast.  Bug hunting is going to get a little bit difficult from here so I'm going to develop a test suite... going to be a while to do that because I doubled the code size after writing all of these functions.  So finally here are my lists of wants:
+
+- Pretty prints where ever there are player options.  Right now a player would have to remember quite a bit and there isn't any real charm to the game.
+- Balance game.  I need to change the starting assets to have some sort of difficulty/flow.  I have some generic calculations (starting capital, win condition capital, machine size, machine cost, grid size) that I can set up some mathematical functions to calculate some generic strategies
+- Test suite for basic tutorial.  This is something I skipped past which I probably should not have.  I only did this because I thought I would fumble around with completing the transactions if I tried to go too granular to start.  Gotta pay the piper now.
+
+#### Progress 5/9/2022 7:00 pm
+- TODO 1: Don't forget to create ReadME!
+- TODO 3: Don't forget turn phase logic!
+- TODO 4: Create a ledger class, this was going to be a bank; however, I believe this can be more general purpose for tracking machines and materials as well.
+- EXPAND 1: Expand test suite and restrict object inputs!  Also upgrade docustrings when back in test scripts.  It will be easier to write documentation because I will have a better idea of how to distinguish/categorize them
+- EXPAND 3: Add palette logic to processors
+- EXPAND 4: Add transfer logic to processors
+- EXPAND 5: Add consolidate method which moves all accounts held into one account.  Potentially put this in a new bank object.
+- EXPAND 6: Add ability to remove sell/buy transactions from vendor.  Likely won't be extremely necessary, as right now I can just deplete their stocks.  It may be useful during gameplay to see what actions they can perform at a glance to avoid clutter.
+- EXPAND 7: Add transaction class.  This would standardize the transaction form and make the updates to other class objects much more clean.
+- EXPAND 8: Add catalogue class.  This would take complexity away from vendor classes and make it easier to track items.
+- EXPAND 9: I have abstracted a lot of transactional inputs by just supplying an update_df.  I will need to create this each time with inputs.  Will be a series of functions, but otherwise will be very easy.  This is natural stuff I was planning on doing in the play flow.
+- REWORK 1: Replace Pandas catalogue with named tuple, may do this in conjunction with EXPAND 8
+- REWORK 2: Rename internal methods with leading underscore (machines, accounts, and all testing)
+- REWORK 3: Decide if objects should be held by other objects or just references.  So far vendors are more of references as they are mimicking a catalogue (wouldn't actually have the item, but could source it).  The accounts probably should be direct references to objects as they are being held by each vendor.
+- REWORK 4:  Change MoneyAccount to use objects on dunder methods
+- REWORK 5:  Move non-self-referential functions out of classes (vendor).  This may be easier accomplished by making the catalogue and transaction classes.  This is a workable short term solution.
+- REWORK 6: Fix improper sell injection when no match is found.  May only happen in the case that a Buy is found with no Sell in the catalogue.
+- REWORK 7: 0 stock items are causing difficulty with existence function as the line technically exists, but the vendor has no stock
+- REWORK 8: I think a weird buy/sell bug is lingering with multiple similar purchases for the player.  Some testing will be needed to verify, but it's worth tracking as it would cause multiple catalogue items containing the same category of data.
+-  REWORK 9:  Put in is_processor_ready_for_input() method. Update corresponding logic in basic_tutorial.py in get_all_available_machines_for_placement.
+- NOTE 1: I have decided to keep the player as a vendor, but will afford them special abilities to make decisions.  This will hopefully cut down on needed code.  May just extend the vendor class to accept user input and allow factory interaction.
+- IDEA 1: I am fumbling a bit when looking back through my tests, this feels much more manual than it should be.  It would be great if I could pull all the docustrings and file directories into a relational data structure for a quick view and indexing.  I think this would greatly help with globally scrolling through quickly summarizing the test suite.
+
+Though I had finished this... added in analytic capabilities to determine if gameplay will be entertaining and complicated enough to not have a straight forward answer.  Determined balanced assets and was updating the functional code when I realized that the catalogue won't distinguish between different capacities.  This is a bear of a change because the transactions were not pushed into an object and therefore are not centralized in the code.  This is going to be a sprawling change and it will have to be made like 50 times.  OUCH!  Pay the piper 2x for speeding in a construction zone.  Changes were actually pretty harmless, though I'm running into some floating issues within the actual game now where the catalogue needs the new update.  Instead of tracking down each instance of this, I'm just going to create the test suite.  I'm going to have to comb through anyway, this will hopefully get the bugs out of the way and upgrade my test coverage at the same time.
+
+#### Progress 5/9/2022 9:23 pm
+- TODO 1: Don't forget to create ReadME!
+- TODO 3: Don't forget turn phase logic!
+- TODO 4: Create a ledger class, this was going to be a bank; however, I believe this can be more general purpose for tracking machines and materials as well.
+- EXPAND 1: Expand test suite and restrict object inputs!  Also upgrade docustrings when back in test scripts.  It will be easier to write documentation because I will have a better idea of how to distinguish/categorize them
+- EXPAND 3: Add palette logic to processors
+- EXPAND 4: Add transfer logic to processors
+- EXPAND 5: Add consolidate method which moves all accounts held into one account.  Potentially put this in a new bank object.
+- EXPAND 6: Add ability to remove sell/buy transactions from vendor.  Likely won't be extremely necessary, as right now I can just deplete their stocks.  It may be useful during gameplay to see what actions they can perform at a glance to avoid clutter.
+- EXPAND 7: Add transaction class.  This would standardize the transaction form and make the updates to other class objects much more clean.
+- EXPAND 8: Add catalogue class.  This would take complexity away from vendor classes and make it easier to track items.
+- EXPAND 9: I have abstracted a lot of transactional inputs by just supplying an update_df.  I will need to create this each time with inputs.  Will be a series of functions, but otherwise will be very easy.  This is natural stuff I was planning on doing in the play flow.
+- REWORK 1: Replace Pandas catalogue with named tuple, may do this in conjunction with EXPAND 8
+- REWORK 2: Rename internal methods with leading underscore (machines, accounts, and all testing)
+- REWORK 3: Decide if objects should be held by other objects or just references.  So far vendors are more of references as they are mimicking a catalogue (wouldn't actually have the item, but could source it).  The accounts probably should be direct references to objects as they are being held by each vendor.
+- REWORK 4:  Change MoneyAccount to use objects on dunder methods
+- REWORK 5:  Move non-self-referential functions out of classes (vendor).  This may be easier accomplished by making the catalogue and transaction classes.  This is a workable short term solution.
+- REWORK 6: Fix improper sell injection when no match is found.  May only happen in the case that a Buy is found with no Sell in the catalogue.
+- REWORK 7: 0 stock items are causing difficulty with existence function as the line technically exists, but the vendor has no stock
+- REWORK 8: I think a weird buy/sell bug is lingering with multiple similar purchases for the player.  Some testing will be needed to verify, but it's worth tracking as it would cause multiple catalogue items containing the same category of data.
+-  REWORK 9:  Put in is_processor_ready_for_input() method. Update corresponding logic in basic_tutorial.py in get_all_available_machines_for_placement.
+- NOTE 1: I have decided to keep the player as a vendor, but will afford them special abilities to make decisions.  This will hopefully cut down on needed code.  May just extend the vendor class to accept user input and allow factory interaction.
+- IDEA 1: I am fumbling a bit when looking back through my tests, this feels much more manual than it should be.  It would be great if I could pull all the docustrings and file directories into a relational data structure for a quick view and indexing.  I think this would greatly help with globally scrolling through quickly summarizing the test suite.
+
+Just went back through all functions and arranged them into groups.  I am now going through the process of transforming these groups into a test suite.  I've identified 3 primary bugs I need to squash while performing this testing; hopefully they will be very apparent while I make my way through the branching logic.  I have already created the asset creation tests.  Since most of the creation logic is stored within these, the tests primarily detect if the functions run.  In the future I would consider storing these assets in a data file and reading them in, though I have put that beyond the scope of the basic tutorial. 39 to go, the ledger, and then another round of clean-up on this script.  I'm happy with where the logic is and I that I got to balance the game play, sometimes you've got to do the fun parts to keep going strong.  Pushing to GitHub because I've done a ton of work and would hate to lose it.
+
+- Bugs (0/3)
+- Gameflow Help Functions (0/12)
+- Asset Creation Functions (7/7)
+- Transactions (0/6)
+- Update Data Helper Functions (0/4)
+- Player Decision Tree (0/11)
+- Game (0/3)
+
+===== Total (7/46) =====

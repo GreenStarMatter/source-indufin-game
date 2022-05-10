@@ -27,7 +27,7 @@ class ProcessorUnit():
 
         self.mechanism = mechanism
         self.input_payload = input_payload
-        if not self.verify_machine_can_handle_load():
+        if not self.verify_machine_can_handle_load(input_payload):
             self.input_payload = [materials.MaterialUnit(), 0]
             print("Improper payload, please set viable payload")
         self.turns_to_produce = self.mechanism.turns_to_process
@@ -130,12 +130,11 @@ class ProcessorUnit():
             print(f"Nonviable payload, please select from{chr(10)}"+\
                   f"{chr(10).join(self.mechanism.processable_inputs)}")
             payload_allowable = False
-        if not self.verify_machine_can_handle_load():
+        if not self.verify_machine_can_handle_load(new_payload):
             print(f"Payload: {new_payload[0].material_name}, {new_payload[1]}")
             print(f"Payload over machine capcity, {self.mechanism.capacity}"+\
                   f"{chr(10).join(self.mechanism.processable_inputs)}")
             payload_allowable = False
-
         return payload_allowable
 
 
@@ -161,7 +160,7 @@ class ProcessorUnit():
                   f"{chr(10).join(self.mechanism.processable_inputs)}")
 
 
-    def verify_machine_can_handle_load(self):
+    def verify_machine_can_handle_load(self, new_payload):
         """Verify machine capacity is greater than the input_load"""
 
-        return self.input_payload[1] <= self.mechanism.capacity
+        return new_payload[1] <= self.mechanism.capacity

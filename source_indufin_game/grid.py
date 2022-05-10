@@ -98,11 +98,13 @@ class FactoryGrid():
         collision_detected = False
 
         y_dist = len(object_to_place.shape)
+        print(coordinates)
         for row in range(coordinates[1], coordinates[1] + y_dist):
             collision_detected = collision_detected or\
                 any(check_coord != "O" for check_coord in\
                     self.grid[row][coordinates[0] : coordinates[0] +\
-                                   len(object_to_place.shape[row])])
+                                   len(object_to_place.\
+                                       shape[coordinates[1] - row])])
         return not collision_detected
 
 
