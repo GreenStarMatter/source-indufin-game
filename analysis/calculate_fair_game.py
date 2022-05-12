@@ -8,8 +8,9 @@ Created on Mon May  9 08:42:27 2022
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+
 gameplay_calculation = \
-    pd.read_csv(r"C:\Users\Kyle Stanley\Documents\GitHub\source-indufin-game\analysis\ConfigurationCalculations.csv")
+    pd.read_csv(r"data\ConfigurationCalculations.csv")
 
 #This is small enough that I don't really have to optimize, but it would be
 #the paper cutting problem in optimization at its core.

@@ -5,7 +5,7 @@ Created on Wed May  4 20:38:09 2022
 @author: Kyle Stanley
 """
 
-from source_indufin_game import basic_tutorial
+import basic_tutorial
 import pandas as pd
 
 
@@ -81,4 +81,4 @@ def test_new_payload_generation():
     assert new_payload[0].form == "Bar"
     assert new_payload[0].form_potency == 0
 
-pd.DataFrame()
+    

@@ -6,9 +6,10 @@ Created on Wed May  4 20:38:07 2022
 """
 
 import string
+import os
+import datetime
+import time
 import pandas as pd
-import sys
-
 from source_indufin_game import vendors
 from source_indufin_game import accounts
 from source_indufin_game import machines
@@ -19,6 +20,8 @@ from source_indufin_game import processors
 ############################################################################
 ###Gameflow helper functions
 def win_condition_check(win_threshold, player):
+    """Determine whether or not player has achieved win condition."""
+
     win_condition = win_threshold <= player.account.balance
     if win_condition:
         print("!!!  WINNER !!!")
@@ -27,10 +30,15 @@ def win_condition_check(win_threshold, player):
         print("!!!  WINNER !!!")
         print("!!!  WINNER !!!")
     return win_condition
+
+
 def evaluate_quit(player_input):
+    """Evaluate player quit input.  Give verification opportunity."""
+
     player_quit = False
     if player_input == "quit":
-        player_input = input("Are you sure? (y) to quit")
+        player_input = input("Are you sure, all progress will be lost?" +
+                             " (y) to quit\n>>>>>")
         if player_input == "y":
             player_quit = True
     return player_quit
@@ -62,16 +70,21 @@ def index_all_grid_machines_for_player_readability(factory):
 def check_stock_amount_valid(update_df, stock_check_value):
     """Verify that catalogue has enough stock to perform transaction"""
 
-    return update_df["stock"].values[0] >= stock_check_value
+    return update_df["stock"].values[0] >= stock_check_value\
+        and stock_check_value != 0
+def get_matching_player_stock_from_update(update_df, player):
+    """Return player stock for item"""
+
+    player_stock = 0
+    player.sale_is_possible(update_df)
+    return player_stock
+
 
 def print_vendor_for_ux(vendor):
     """Pretty print of vendor data so user can browse catalogue"""
 
-    print()
-    print(f"***{vendor.vendor_name}***")
-    print()
+    print(f"\n***{vendor.vendor_name}***\n")
     print(vendor.catalogue)
-    return None
 
 def get_all_available_machines_for_placement(grid,
                                              processors_available,
@@ -88,23 +101,22 @@ def get_all_available_machines_for_placement(grid,
         if machine_available:
             availability = "Available"
         print("*****************************************")
+        print(f"Location: {grid.objects_on_grid[machine]}")
         print(f"{mach_ind} : {machine.machine_name} : {availability}")
         print(machine.__str__())
-        print("*****************************************")
-        print()
+        print("*****************************************\n")
 
 def get_all_available_materials_for_placement(start_ind_of_materials,
                                               all_ready_processors):
     """Pretty print of all materials which are ready for harvesting."""
-    
+
     for processor_ind, processor in enumerate(all_ready_processors):
         output_payload = processor.output_payload
         print("*****************************************")
         print(f"{start_ind_of_materials + processor_ind} :"+
               f" {output_payload[0].material_name} {output_payload[0].form}"+
               f" {output_payload[0].form_potency}: {output_payload[1]}")
-        print("*****************************************")
-        print()
+        print("*****************************************\n")
 
 
 def get_associated_player_stock_from_buyer_cat(player, catalogue_row):
@@ -125,39 +137,162 @@ def get_associated_player_stock_from_buyer_cat(player, catalogue_row):
     return item_exists
 
 
+def print_pretty_player_catalogue(player):
+    """Hides None row if player has items in catalogue"""
+
+    if len(player.catalogue["product_type"].values) >= 2:
+        print(player.catalogue[player.catalogue["product_type"] != "None"])
+    else:
+        print(player.catalogue)
+
 def convert_coordinates_to_tuple(coordinate_string):
     """Converts input string of the form xy into a coordinate tuple"""
 
     return (int(coordinate_string[0]), int(coordinate_string[1]))
 
-def get_all_materials_that_are_ready_for_removal(all_ready_processors,
-                                                 start_ind_of_materials):
-    
-    for cur_ind, processor in enumerate(all_ready_processors):
-        actual_ind = start_ind_of_materials + cur_ind
-        print(actual_ind + " : " + processor.output_payload)
+def print_machine_attributes_of_seller_catalogue():
+    """Prints detailed attributes of all machines."""
+
+    shape_size_lookup = {("Testulator", 5) : 1,
+                         ("Exbopulator", 12) : 1,
+                         ("Pilomatic", 50) : 1,
+                         ("Testulator", 25) : 2,
+                         ("Exbopulator", 50) : 2,
+                         ("Pilomatic", 100) : 2,
+                         ("Testulator", 100) : 3,
+                         ("Exbopulator", 200) : 3,
+                         ("Pilomatic", 150) : 3
+                         }
+    shape_lookup = {1:[[1]],
+                    2:[[1,1], [1,1]],
+                    3:[[1,1,1,1], [1,1,1,1], [1,1,1,1], [1,1,1,1]]}
+    processible_inputs = {"Testulator" : ["Testonium"],
+                          "Exbopulator" : ["Experimentallite"],
+                          "Pilomatic" : ["Pilotine"]}
+
+    for specific_machine_config in shape_size_lookup.keys():
+        print("____________________\n")
+        print(f"{specific_machine_config[0]} {specific_machine_config[1]}")
+        print_load = "".join(["|"+ " ".join([str(element) for element in row])\
+                              + "|\n" for row in\
+                                  shape_lookup[
+                                      shape_size_lookup[
+                                          specific_machine_config]]])
+        print(print_load[:-1])
+        print(f"Processes {'|'.join(processible_inputs[specific_machine_config[0]])}")
+        print("--------------------\n")
+
+def append_item_to_ledger(
+        ledger, origin, end, item, amount, line_id, transaction_id):
+    """Appends a new line to the ledger"""
+
+    ledger_columns = ["From", "To", "Item",
+                      "Amount", "Line_ID", "Transaction_ID"]
+    new_ledger_line = [[origin, end, item, amount, line_id, transaction_id]]
+    ledger_line = pd.DataFrame(new_ledger_line, columns = ledger_columns)
+    ledger = pd.concat([ledger, ledger_line])
+    return ledger
+
+
+
+def execute_ledger_transaction(ledger, ledger_items, line_id, transaction_id):
+    """Executes a batch of appends to the ledger as a transaction"""
+
+    for ledger_update in ledger_items:
+        origin = ledger_update[0]
+        end = ledger_update[1]
+        item = ledger_update[2]
+        amount = ledger_update[3]
+        ledger = append_item_to_ledger(
+            ledger, origin, end, item, amount, line_id, transaction_id)
+        line_id += 1
+    transaction_id += 1
+    return ledger, line_id, transaction_id
+
+def write_ledger_to_output_file(ledger):
+    """Index for session retrieval"""
+    #give filepath
+    #write ledger
+    cwd = os.getcwd()
+    subfolder_path = (r"analysis\session_data")
+    full_path_to_folder = os.path.join(cwd,subfolder_path)
+    current_timestamp = time.time()
+    index_no = str(len(os.listdir(full_path_to_folder)))
+    complete_time =\
+        datetime.datetime.fromtimestamp(current_timestamp)\
+            .strftime('%Y_%m_%d__%H_%M_%S')
+    file_name = f"TransactionLog{index_no}_{complete_time}.csv"
+    ledger_write_path = os.path.join(full_path_to_folder, file_name)
+    ledger.to_csv(ledger_write_path, index = False)
+
+
+def print_basic_tutorial_help_information(starting_capital, win_threshold):
+    """Prints help information.  This contains the information needed to
+    play the game."""
+
+    print("\n\n\n")
+    print(f"""Hello, welcome to the source-indufin game!\n
+          Currently you are in a basic tutorial mode.  You have been given
+          ${starting_capital} to start.  Your objective is to raise more
+          than ${win_threshold}.  You can do this by purchasing
+          materials and machines, running a factory, and selling processed
+          materials.\n\nThe actions you can perform are:
+          
+          BUY: Purchase machines or materials so you can place them in your
+          factory.
+          SELL: Sell machines or processed materials to make money.
+          PLACE IN FACTORY:  Place machines on factory floor grid or place
+          materials in available machines
+          REMOVE FROM FACTORY: Remove materials or machines from factory
+           floor.
+          END TURN: End the day and allow machines to process materials.
+          
+          
+          A normal progression would be to:
+          1. Buy a machine from a seller
+          2. Buy material which matches the machine input payload
+          3. Place the machine in your factory
+          4. Place the material in your factory
+          5. Pass turns until the material is ready to be harvested
+          6. Harvest material into your catalogue
+          7. Sell material to buyer
+          8. Determine how to spend your profit!
+          """)
+    print("\n\n\n")
+    input("Press Enter to Continue\n\n")
 ############################################################################
 
 ############################################################################
 ###Asset creation functions
+#Ledger
+def create_ledger():
+    """Creates a transactional ledger for storing transaction of assets."""
+
+    ledger_columns = ["From", "To", "Item",
+                      "Amount", "Line_ID", "Transaction_ID"]
+    new_ledger_line = [["VOID", "Game", "New Session", 1, 0, 0]]
+    new_ledger = pd.DataFrame(new_ledger_line, columns = ledger_columns)
+    return new_ledger
+
 #Buyer
 def create_buyer_vendor():
     """Creates buyer vendor."""
+
     vendor_columns = ["vendor_type", "product_type", "form",
                       "potency", "stock", "cost", "process_time", "capacity"]
     buyer_catalogue = [["Buy", "Testonium", "Melted", 3, 0, 8, -1, -1]]
     buyer_catalogue.append(["Buy", "Experimentallite",
                             "Melted", 3, 0, 6, -1, -1])
     buyer_catalogue.append(["Buy", "Pilotine", "Melted", 3, 0, 4, -1, -1])
-    buyer_catalogue.append(["Buy", "Testulator", "Melt", 3, 0, 30, 5])
-    buyer_catalogue.append(["Buy", "Testulator", "Melt", 3, 0, 150, 25])
-    buyer_catalogue.append(["Buy", "Testulator", "Melt", 3, 0, 600, 100])
-    buyer_catalogue.append(["Buy", "Exbopulator", "Melt", 3, 0, 24, 12])
-    buyer_catalogue.append(["Buy", "Exbopulator", "Melt", 3, 0, 100, 50])
-    buyer_catalogue.append(["Buy", "Exbopulator", "Melt", 3, 0, 400, 200])
-    buyer_catalogue.append(["Buy", "Pilomatic", "Melt", 3, 0, 34, 50])
-    buyer_catalogue.append(["Buy", "Pilomatic", "Melt", 3, 0, 67, 100])
-    buyer_catalogue.append(["Buy", "Pilomatic", "Melt", 3, 0, 100, 150])
+    buyer_catalogue.append(["Buy", "Testulator", "Melt", 3, 0, 30, 1, 5])
+    buyer_catalogue.append(["Buy", "Testulator", "Melt", 3, 0, 150, 1, 25])
+    buyer_catalogue.append(["Buy", "Testulator", "Melt", 3, 0, 600, 1, 100])
+    buyer_catalogue.append(["Buy", "Exbopulator", "Melt", 3, 0, 24, 2, 12])
+    buyer_catalogue.append(["Buy", "Exbopulator", "Melt", 3, 0, 100, 2, 50])
+    buyer_catalogue.append(["Buy", "Exbopulator", "Melt", 3, 0, 400, 2, 200])
+    buyer_catalogue.append(["Buy", "Pilomatic", "Melt", 3, 0, 34, 3, 50])
+    buyer_catalogue.append(["Buy", "Pilomatic", "Melt", 3, 0, 67, 3, 100])
+    buyer_catalogue.append(["Buy", "Pilomatic", "Melt", 3, 0, 100, 3, 150])
     buyer_df = pd.DataFrame(buyer_catalogue, columns = vendor_columns)
     buyer_vendor = vendors.Vendor(
         vendor_name = "Bobby the Buyer",
@@ -178,17 +313,17 @@ def create_seller_vendor():
                              0, 100000000, 4, -1, -1])
     seller_catalogue.append(["Sell", "Pilotine", "Bar",
                              0, 100000000, 3, -1, -1])
-    seller_catalogue.append(["Sell", "Testulator", "Melt", 3, 5, 60, 1, 5])
+    seller_catalogue.append(["Sell", "Testulator", "Melt", 3, 50, 60, 1, 5])
     seller_catalogue.append(["Sell", "Testulator", "Melt", 3, 25, 300, 1, 25])
     seller_catalogue.append(["Sell", "Testulator", "Melt",
-                             3, 50, 1200, 1, 100])
-    seller_catalogue.append(["Sell", "Exbopulator", "Melt", 3, 5, 48, 2, 12])
+                             3, 5, 1200, 1, 100])
+    seller_catalogue.append(["Sell", "Exbopulator", "Melt", 3, 50, 48, 2, 12])
     seller_catalogue.append(["Sell", "Exbopulator", "Melt", 3, 25, 200, 2, 50])
     seller_catalogue.append(["Sell", "Exbopulator", "Melt",
-                             3, 50, 800, 2, 200])
-    seller_catalogue.append(["Sell", "Pilomatic", "Melt", 3, 5, 67, 3, 50])
+                             3, 5, 800, 2, 200])
+    seller_catalogue.append(["Sell", "Pilomatic", "Melt", 3, 50, 67, 3, 50])
     seller_catalogue.append(["Sell", "Pilomatic", "Melt", 3, 25, 134, 3, 100])
-    seller_catalogue.append(["Sell", "Pilomatic", "Melt", 3, 50, 200, 3, 150])
+    seller_catalogue.append(["Sell", "Pilomatic", "Melt", 3, 5, 200, 3, 150])
     seller_df = pd.DataFrame(seller_catalogue, columns = vendor_columns)
     seller_vendor = vendors.Vendor(
         vendor_name = "Sal the Seller",
@@ -228,16 +363,28 @@ def generate_new_machine(update_df):
                              'process_time',
                              'capacity'
                              ]].values[0])
-    shape = {1:[[1]],
-             2:[[1,1], [1,1]],
-             3:[[1,1,1,1], [1,1,1,1], [1,1,1,1], [1,1,1,1]]}
+    shape_size_lookup = {("Testulator", 5) : 1,
+                         ("Exbopulator", 12) : 1,
+                         ("Pilomatic", 50) : 1,
+                         ("Testulator", 25) : 2,
+                         ("Exbopulator", 50) : 2,
+                         ("Pilomatic", 100) : 2,
+                         ("Testulator", 100) : 3,
+                         ("Exbopulator", 200) : 3,
+                         ("Pilomatic", 150) : 3
+                         }
+    shape_size  = shape_size_lookup[(machine_identity_info[0],
+                                     machine_identity_info[4])]
+    shape_lookup = {1:[[1]],
+                    2:[[1,1], [1,1]],
+                    3:[[1,1,1,1], [1,1,1,1], [1,1,1,1], [1,1,1,1]]}
     processible_inputs = {"Testulator" : ["Testonium"],
                           "Exbopulator" : ["Experimentallite"],
                           "Pilomatic" : ["Pilotine"]}
 
     new_machine = machines.MachineUnit(
     cost = update_df["cost"].iloc[0],
-    shape = shape[machine_identity_info[3]],
+    shape = shape_lookup[shape_size],
     owner = "Player 1",
     machine_name = update_df["product_type"].iloc[0],
     processable_inputs = processible_inputs[update_df["product_type"].iloc[0]],
@@ -245,7 +392,7 @@ def generate_new_machine(update_df):
     augment_potency = update_df["potency"].iloc[0],
     capacity = update_df["capacity"].iloc[0],
     turns_to_process = update_df["process_time"].iloc[0])
-    
+
     return new_machine
 
 #Processor
@@ -259,9 +406,6 @@ def generate_new_processor(new_machine):
 #Payload
 def generate_new_payload(update_df):
     """Generates a payload from a reference."""
-    print("++++++++++++++++++++++++++++++++++++++")
-    print(update_df)
-    print("++++++++++++++++++++++++++++++++++++++")
 
     material_identity_info = list(update_df[[
                              'product_type',
@@ -275,7 +419,7 @@ def generate_new_payload(update_df):
         owner = "Player 1",
         material_name = material_identity_info[0],
         form = material_identity_info[1],
-        form_potency = material_identity_info[2])    
+        form_potency = material_identity_info[2])
 
     return [new_material, material_identity_info[3]]
 ############################################################################
@@ -285,12 +429,48 @@ def generate_new_payload(update_df):
 def move_item_from_seller_to_player_catalogue(player, seller, update_df):
     """Transacts a purchase to the player from a seller"""
 
+    transaction_cost = str(update_df["stock"].iloc[0] *\
+                           update_df["cost"].iloc[0])
+    item = "|".join([update_df["product_type"].iloc[0],
+                     update_df["form"].iloc[0],
+                     str(update_df["potency"].iloc[0]),
+                     str(update_df["capacity"].iloc[0])])
+    ledger_items = [["Seller", "Player",
+                     item, str(update_df["stock"].iloc[0])],
+                    ["Seller", "Player",
+                     "Capital", transaction_cost]
+                    ]
+    global ledger
+    global transaction_id
+    global line_id
+    ledger, line_id, transaction_id  =\
+            execute_ledger_transaction(ledger, ledger_items,
+                                       line_id, transaction_id)
+
     player.purchase_from_vendor(seller, update_df)
     player.catalogue["vendor_type"] = "Sell"
 
 
 def move_item_from_player_to_buyer_catalogue(player, buyer, update_df):
     """Transacts a sale to a buyer from the player"""
+
+    transaction_cost = str(update_df["stock"].iloc[0] *\
+                           update_df["cost"].iloc[0])
+    item = "|".join([update_df["product_type"].iloc[0],
+                     update_df["form"].iloc[0],
+                     str(update_df["potency"].iloc[0]),
+                     str(update_df["capacity"].iloc[0])])
+    ledger_items = [["Player", "Buyer",
+                     item, str(update_df["stock"].iloc[0])],
+                    ["Player", "Buyer",
+                     "Capital", transaction_cost]
+                    ]
+    global ledger
+    global transaction_id
+    global line_id
+    ledger, line_id, transaction_id  =\
+            execute_ledger_transaction(ledger, ledger_items,
+                                       line_id, transaction_id)
 
     buyer.purchase_from_vendor(player, update_df)
     player.catalogue["vendor_type"] = "Sell"
@@ -302,23 +482,36 @@ def move_machine_from_player_catalogue_to_grid(player,
                                                coordinates):
     """Transacts a machine out of the players catalogue and places it on
     the grid.  Creates a processor corresponding to the machine as well."""
-    #TODO: Verify player has suffient Stock... or remove 0 stock items from inventory
+
     successful_transaction = False
     object_to_place = generate_new_machine(update_df)
     transaction_gate_1 = player.check_records_exist(update_df)
     transaction_gate_2 = factory.verify_valid_placement(object_to_place,
                                                         coordinates)
-    
     if not transaction_gate_1:
         print("Record doesn't exist for player")
     elif not transaction_gate_2:
         print("Invalid placement of machine")
     else:
+        item = "|".join(["".join([str(a) for a in coordinates]),
+                         update_df["product_type"].iloc[0],
+                         update_df["form"].iloc[0],
+                         str(update_df["potency"].iloc[0]),
+                         str(update_df["capacity"].iloc[0])])
+        ledger_items = [["Player", "Grid",
+                         item, 1]]
+        global ledger
+        global transaction_id
+        global line_id
+        ledger, line_id, transaction_id  =\
+                execute_ledger_transaction(ledger, ledger_items,
+                                           line_id, transaction_id)
         player.update_catalogue("Sell", update_df)
         new_processor = generate_new_processor(object_to_place)
         processors_available[object_to_place] = new_processor
         factory.place_on_grid(object_to_place, coordinates)
         successful_transaction = True
+
     return successful_transaction
 
 
@@ -327,7 +520,6 @@ def move_material_from_player_catalogue_to_machine(
         update_df, player_input_coordinates_of_machine):
     """Transacts a material out of the player catalogue and into a machine
     already placed on the grid."""
-
     transaction_successful = True
     input_payload = generate_new_payload(update_df)
     transaction_gate_1 = player.check_records_exist(update_df)
@@ -348,6 +540,19 @@ def move_material_from_player_catalogue_to_machine(
         transaction_successful = False
         print("Invalid placement of material")
     else:
+        item = "|".join(["".join([str(a) for a\
+                                  in player_input_coordinates_of_machine]),
+                         update_df["product_type"].iloc[0],
+                         update_df["form"].iloc[0],
+                         str(update_df["potency"].iloc[0])])
+        ledger_items = [["Player", "Grid",
+                         item, str(update_df["stock"].iloc[0])]]
+        global ledger
+        global transaction_id
+        global line_id
+        ledger, line_id, transaction_id  =\
+                execute_ledger_transaction(ledger, ledger_items,
+                                           line_id, transaction_id)
         player.update_catalogue("Sell", update_df)
         processor_to_place_into.set_payload(input_payload)
 
@@ -364,13 +569,24 @@ def move_material_in_processor_into_player_catalogue(player, processor):
     else:
         valid_transaction = True
         output_payload = processor.collect_output_payload()
-        update_columns = ["vendor_type", "product_type", "form",
-                          "potency", "stock", "cost", "process_time"]
+        update_columns = ["vendor_type", "product_type", "form", "potency",
+                          "stock", "cost", "process_time", "capacity"]
         catalogue_update = [["Sell", output_payload[0].material_name,
                              output_payload[0].form,
                             output_payload[0].form_potency, output_payload[1],
-                            0, -1]]
+                            0, -1, -1]]
         update_df = pd.DataFrame(catalogue_update, columns = update_columns)
+        item = "|".join([update_df["product_type"].iloc[0],
+                         update_df["form"].iloc[0],
+                         str(update_df["potency"].iloc[0])])
+        ledger_items = [["Grid", "Player",
+                         item, str(update_df["stock"].iloc[0])]]
+        global ledger
+        global transaction_id
+        global line_id
+        ledger, line_id, transaction_id  =\
+                execute_ledger_transaction(ledger, ledger_items,
+                                           line_id, transaction_id)
         player.update_catalogue("Purchase", update_df)
 
     return valid_transaction
@@ -381,30 +597,42 @@ def move_machine_from_grid_into_player_catalogue(
         player_input_coordinates_to_transform, update_df):
     """Transacts a machine from the grid back into a player's catalogue"""
 
-    #TODO: Verify if item is in processor
-    #If so auto-collect if ready, ask player "Are you sure" if not
     transaction_valid = False
     easy_index_items = \
         index_all_grid_machines_for_player_readability(factory)
-    
+
     transaction_gate_1 =\
         player_input_coordinates_to_transform in easy_index_items.keys()
-    
+
     if transaction_gate_1:
+
+        item = "|".join(["".join([str(a) for a\
+                                  in player_input_coordinates_to_transform]),
+                         update_df["product_type"].iloc[0],
+                         update_df["form"].iloc[0],
+                         str(update_df["potency"].iloc[0]),
+                         str(update_df["capacity"].iloc[0])])
+        ledger_items = [["Grid", "Player",
+                         item, 1]]
+        global ledger
+        global transaction_id
+        global line_id
+        ledger, line_id, transaction_id  =\
+                execute_ledger_transaction(ledger, ledger_items,
+                                           line_id, transaction_id)
         transaction_valid = True
         object_to_remove = easy_index_items[
         player_input_coordinates_to_transform
         ][2]
-        #If machine on board
+
         player.update_catalogue("Purchase", update_df)
-        #remove from grid
         factory.remove_from_grid(object_to_remove)
         del processors_available[object_to_remove]
-        
     else:
         print("No object at those coordinates")
 
     return transaction_valid
+
 ############################################################################
 
 ############################################################################
@@ -445,17 +673,17 @@ def create_machine_removed_from_grid_update_df(machine):
                         0, machine.turns_to_process, machine.capacity]]
     update_df = pd.DataFrame(catalogue_update, columns = update_columns)
 
-    return update_df  
+    return update_df
 ############################################################################
 
 ############################################################################
 ###Player Decision Tree
 def player_decision_choose_quantity_to_purchase(player, seller, catalogue_row):
     """Takes player input to get the quantity of the item being purchased"""
-    
+
     player_input_catalogue_check_valid = False
     while not player_input_catalogue_check_valid:
-        amount_prompt = "Select item amount or (m) for main menu:"
+        amount_prompt = "Select item amount or (m) for main menu:\n>>>>>"
         player_input = input(amount_prompt)
         if player_input.isdigit():
             player_input_catalogue_check_valid =\
@@ -473,8 +701,6 @@ def player_decision_choose_quantity_to_purchase(player, seller, catalogue_row):
 
         else:
             print("Input invalid, please try again.")
-    
-    return None
 
 
 def player_decision_choose_quantity_to_sell(player, buyer, catalogue_row):
@@ -482,7 +708,7 @@ def player_decision_choose_quantity_to_sell(player, buyer, catalogue_row):
 
     player_input_catalogue_check_valid = False
     while not player_input_catalogue_check_valid:
-        amount_prompt = "Select item amount or (m) for main menu:"
+        amount_prompt = "Select item amount or (m) for main menu:\n>>>>>"
         player_input = input(amount_prompt)
         if player_input.isdigit():
             player_input_catalogue_check_valid =\
@@ -498,23 +724,24 @@ def player_decision_choose_quantity_to_sell(player, buyer, catalogue_row):
                 player, buyer, update_df)
         else:
             print("Input invalid, please try again.")
-    
-    return None
+
 
 def player_decision_seller_catalogue_branch(player, seller):
-    """Takes player input to decide which item in seller catalogue will be 
-    purchased"""
-    
+    """Takes player input to decide which item in seller catalogue will be
+     purchased"""
+
     player_input_check_valid_item = False
     while not player_input_check_valid_item:
-        item_prompt = "Select item # from catalogue or (m) for main menu:"
+        item_prompt = "Select item # from catalogue or (m) for main menu or "+\
+            "(e) to examine machines:\n>>>>>"
         player_input = input(item_prompt)
-        #player_input_catalogue_check_valid = False
-        
-        if (not player_input.isdigit()) and (player_input != "m"):
+        if (not player_input.isdigit()) and (player_input != "m")\
+            and (player_input != "e"):
             print("Input invalid, please try again.")
         elif player_input == "m":
             player_input_check_valid_item = True
+        elif player_input == "e":
+            print_machine_attributes_of_seller_catalogue()
         elif int(player_input) in seller.catalogue.index:
             player_input = int(player_input)
             catalogue_row = seller.catalogue.loc[[player_input]]
@@ -523,18 +750,17 @@ def player_decision_seller_catalogue_branch(player, seller):
             player_input_check_valid_item = True
         else:
             print("Input invalid, please try again.")
-    return None
+
 
 def player_decision_buyer_catalogue_branch(player, buyer):
-    """Takes player input to decide which item in buyer catalogue will be 
-    sold"""
+    """Takes player input to decide which item in buyer catalogue will be
+     sold"""
 
     player_input_check_valid_item = False
     while not player_input_check_valid_item:
-        item_prompt = "Select item # from catalogue or (m) for main menu:"
+        item_prompt = "Select item # from catalogue or (m) for main menu:\n" +\
+            ">>>>>"
         player_input = input(item_prompt)
-        #player_input_catalogue_check_valid = False
-        
         if (not player_input.isdigit()) and (player_input != "m"):
             print("Input invalid, please try again.")
         elif player_input == "m":
@@ -547,10 +773,9 @@ def player_decision_buyer_catalogue_branch(player, buyer):
                 player_decision_choose_quantity_to_sell(player, buyer,
                                                             catalogue_row)
                 player_input_check_valid_item = True
-                
         else:
             print("Input invalid, please try again.")
-    return None
+
 
 def player_decision_buy_or_sell_branch(player, buyer, seller):
     """Takes player input whether the player wants to interact with a buyer or
@@ -559,23 +784,37 @@ def player_decision_buy_or_sell_branch(player, buyer, seller):
     valid_buy_sell = False
     while not valid_buy_sell:
         buy_sell_prompt = "Enter 1 to buy, 2 to sell, " +\
-            "(m) to return to main menu: "
+            "(m) to return to main menu:\n>>>>>"
         player_input = input(buy_sell_prompt)
-        
+
         if player_input == "1":
             valid_buy_sell = True
             print_vendor_for_ux(seller)
             player_decision_seller_catalogue_branch(player, seller)
         elif player_input == "2":
             valid_buy_sell = True
-            print(player.catalogue)
+            print_pretty_player_catalogue(player)
             print_vendor_for_ux(buyer)
-            #Change to buyer in function name, make buy function
             player_decision_buyer_catalogue_branch(player, buyer)
         elif player_input == "m":
             valid_buy_sell = True
         else:
             print("Input invalid, please try again.")
+
+
+def player_decision_validate_overwrite_existing():
+    player_decided_to_overwrite = False
+    player_input_machine = input("Overwrite existing load?  This will destroy"+
+                                 "the output as well: (y)/(n)\n>>>>>")
+
+    if player_input_machine == "y":
+        player_decided_to_overwrite = True
+    elif player_input_machine == "n":
+        print("Overwrite aborted.")
+    else:
+        print("Input invalid, please try again.")
+
+    return player_decided_to_overwrite
 
 
 def player_decision_select_machine_for_placement(player,
@@ -593,7 +832,8 @@ def player_decision_select_machine_for_placement(player,
                                                  all_machines_on_grid)
         machine_choice_prompt = "Choose the index of a machine to place"+\
             " material in or (m) for main menu: "
-        material_amount_prompt = "Choose the amount to place in machine: "
+        material_amount_prompt = "Choose the amount to place in machine:\n" +\
+            ">>>>>"
         player_input_machine = input(machine_choice_prompt)
         if material_amount_prompt == "m":
             player_input_amount = 0
@@ -602,7 +842,7 @@ def player_decision_select_machine_for_placement(player,
 
         if (not player_input_machine.isdigit())\
             and (player_input_machine != "m")\
-                and (not player_input_amount.isdigit()):
+                or (not player_input_amount.isdigit()):
             print("Input invalid, please try again.")
         elif player_input_machine == "m":
             player_input_to_choose_machine_valid = True
@@ -610,24 +850,33 @@ def player_decision_select_machine_for_placement(player,
             int(player_input_machine)<0:
             print("Input invalid, please try again.")
         else:
-            player_input_to_choose_machine_valid = True
             machine = all_machines_on_grid[int(player_input_machine)]
-            player_input_coordinates_of_machine = grid.objects_on_grid[machine]
-            update_df =\
-                create_material_placement_update_df(catalogue_row,
-                                                    int(player_input_amount))
-            print(update_df)
-            player_input_to_choose_machine_valid =\
-                move_material_from_player_catalogue_to_machine(
-                    player, grid, processors_available,
-                    update_df, player_input_coordinates_of_machine)
+            define_output_payload = False
+            if processors_available[machine]._processing_flag:
+                define_output_payload =\
+                    player_decision_validate_overwrite_existing()
+            else:
+                define_output_payload = True
+            if define_output_payload:
+                player_input_to_choose_machine_valid = True
+                player_input_coordinates_of_machine = grid.objects_on_grid[machine]
+                update_df =\
+                    create_material_placement_update_df(catalogue_row,
+                                                        int(player_input_amount))
+                if player.sale_is_possible(update_df):
+                    player_input_to_choose_machine_valid =\
+                        move_material_from_player_catalogue_to_machine(
+                            player, grid, processors_available,
+                            update_df, player_input_coordinates_of_machine)
+                else:
+                    print("Not enough stock")
 
 def player_decision_item_type_of_choice_branch(player,
                                                grid,
                                                processors_available,
                                                catalogue_row):
     """Passes catalogue selection to branch to materials or machine options"""
-    
+
     if catalogue_row["process_time"].values[0] == -1:
         player_decision_select_machine_for_placement(
             player, grid, processors_available, catalogue_row)
@@ -635,7 +884,6 @@ def player_decision_item_type_of_choice_branch(player,
         player_input_machine_placement_process(
             player, grid, processors_available, catalogue_row)
 
-    return None
 
 def player_decision_player_catalogue_branch(player,
                                             processors_available,
@@ -645,7 +893,8 @@ def player_decision_player_catalogue_branch(player,
 
     player_input_check_valid_item = False
     while not player_input_check_valid_item:
-        item_prompt = "Select item # from catalogue or (m) for main menu:"
+        item_prompt = "Select item # from catalogue or (m) for main menu:\n"+\
+            ">>>>>"
         player_input = input(item_prompt)
         if (not player_input.isdigit()) and (player_input != "m"):
             print("Input invalid, please try again.")
@@ -660,7 +909,7 @@ def player_decision_player_catalogue_branch(player,
             player_input_check_valid_item = True
         else:
             print("Input invalid, please try again.")
-    return None
+
 
 
 def player_decision_remove_from_grid_branch(player,
@@ -668,7 +917,7 @@ def player_decision_remove_from_grid_branch(player,
                                             grid):
     """Placer decision to remove an item from the grid.  Lists all viable
     materials and machines which could be removed"""
-    
+
     player_input_check_valid_item = False
     all_machines_on_grid = list(grid.objects_on_grid.keys())
     start_ind_of_materials = len(all_machines_on_grid)
@@ -683,7 +932,7 @@ def player_decision_remove_from_grid_branch(player,
         get_all_available_materials_for_placement(start_ind_of_materials,
                                                   all_ready_processors)
 
-        player_input = input("Select object for removal")
+        player_input = input("Select object for removal\n>>>>>")
         if player_input.isdigit():
             list_ind = int(player_input)
 
@@ -698,16 +947,20 @@ def player_decision_remove_from_grid_branch(player,
             machine_coords = grid.objects_on_grid[machine]
             update_df =\
                 create_machine_removed_from_grid_update_df(machine)
-            player_input_check_valid_item =\
-                move_machine_from_grid_into_player_catalogue(
-                    player, grid, processors_available,
-                    machine_coords, update_df)
+            machine_okay_to_remove =\
+                player_input_verify_machine_removal(machine, processors_available)
+            if machine_okay_to_remove:
+                player_input_check_valid_item =\
+                    move_machine_from_grid_into_player_catalogue(
+                        player, grid, processors_available,
+                        machine_coords, update_df)
+            else:
+                player_input_check_valid_item = True
         elif list_ind >= len(all_machines_on_grid) and\
             (int(player_input) < start_ind_of_materials\
                 + len(all_ready_processors)):
             list_ind -= start_ind_of_materials
             processor = all_ready_processors[list_ind]
-            
             player_input_check_valid_item =\
                 move_material_in_processor_into_player_catalogue(
                     player, processor)
@@ -724,11 +977,10 @@ def player_decision_grid_interaction_branch(player,
     while not player_input_grid_selection_valid:
         player_input_grid_options = "Select 1 to transfer catalogue " +\
             "item to grid\nSelect 2 to transfer grid item to catalogue\n"+\
-                "Select (m) to go to main menu"
+                "Select (m) to go to main menu\n>>>>>"
         player_input = input(player_input_grid_options)
         if player_input == "1":
-            
-            print_vendor_for_ux(player)
+            print_pretty_player_catalogue(player)
             print(grid.__str__())
             player_decision_player_catalogue_branch(player,
                                                     processors_available,
@@ -744,19 +996,38 @@ def player_decision_grid_interaction_branch(player,
         else:
             print("Input invalid, please try again.")
 
+def player_decision_harvest_all_materials(player, processors_available):
+    """Auto-Harvests all available materials.  Does so by looking through all
+    processors with a high payload ready flag and prints results."""
+
+    processors_with_payload = [processor for processor in \
+                               processors_available.values() if \
+                                   processor.output_payload_ready_flag == 1]
+    if processors_with_payload:
+        print("000000000000000000000000000000000000000000000000000000")
+        print("Harvested")
+        for processor in processors_with_payload:
+            print("---------")
+            print(f"{processor.output_payload}")
+            print("---------")
+            move_material_in_processor_into_player_catalogue(player, processor)
+        print("000000000000000000000000000000000000000000000000000000")
+    else:
+        print("No processors had output payloads.")
+
 
 #Slightly different, doesn't branch
 def player_input_machine_placement_process(player,
                                            grid,
                                            processors_available,
                                            catalogue_row):
-    """Takes player input to determine where a machine should be placed on 
-    the grid"""
+    """Takes player input to determine where a machine should be placed on
+     the grid"""
     transaction_completed = False
     while not transaction_completed:
         print(grid.__str__())
         player_input_grid_placement_string = "Select coordinates for "+\
-            "placement (xy)\nSelect (m) to return to main menu\n"
+            "placement (xy)\nSelect (m) to return to main menu\n>>>>>"
         player_input = input(player_input_grid_placement_string)
         if len(player_input) != 2:
             print("Input invalid, please try again.")
@@ -767,44 +1038,91 @@ def player_input_machine_placement_process(player,
                 convert_coordinates_to_tuple(player_input)
             update_df = catalogue_row.copy()
             update_df["stock"] = 1
-            transaction_completed = move_machine_from_player_catalogue_to_grid(
-                player, grid, processors_available,
-                update_df, input_coordinates)   
+            if player.sale_is_possible(update_df):
+                transaction_completed =\
+                    move_machine_from_player_catalogue_to_grid(
+                    player, grid, processors_available,
+                    update_df, input_coordinates)
+            else:
+                transaction_completed = True
+                print("\nNo machines to place, returning to main menu")
         else:
             print("Input invalid, please try again.")
-    
+
+def player_input_verify_machine_removal(machine, processors_available):
+    """Verify with player if machine contains a material.  This is to avoid
+    accidentally destroying resources."""
+
+    machine_okay_to_remove = False
+    #while 1:
+    if processors_available[machine].output_payload:
+        valid_removal_decision = False
+        while not valid_removal_decision:
+            player_input = input(">>>>>\nMachine is currently processing, " +
+                                 "removal will destroy in process material " +
+                                 "(p) to proceed, (a) to abort")
+            if player_input == "p":
+                valid_removal_decision = True
+                machine_okay_to_remove = True
+                print("Proceeding with removal")
+            elif player_input == "a":
+                valid_removal_decision = True
+                print("Aborting removal")
+            else:
+                print("Input invalid, please try again.")
+    else:
+        machine_okay_to_remove = True
+    return machine_okay_to_remove
 ############################################################################
 
 
-
-def basic_tutorial():
+def basic_tutorial_game():
     """Play flow logic for basic game.  Win condition is a simple threshold."""
+
+    global ledger
+    global transaction_id
+    global line_id
+    transaction_id = 1
+    line_id = 1
+    ledger = create_ledger()
     win_threshold = 2500
+    starting_capital = 150
     turn_counter = 0
     buyer = create_buyer_vendor()
     seller = create_seller_vendor()
-    player = create_player(300)
+    player = create_player(starting_capital)
     factory = create_factory_grid()
+    ledger_items = [["VOID", "Game", "Buyer", 1],
+                    ["VOID", "Game", "Seller", 1],
+                    ["VOID", "Game", "Player", 1],
+                    ["Game", "Player", "Capital", starting_capital],
+                    ["VOID", "Game", "Factory", 1]]
+    ledger, line_id, transaction_id  =\
+        execute_ledger_transaction(ledger, ledger_items, line_id, transaction_id)
     processors_available = {}
     win_condition_met = False
     player_quit = False
     top_level_player_options = ["Buy/Sell",
                                 "Place/Move Item",
-                                "List Items",
+                                "Harvest All Materials",
+                                "List Machine Configs",
                                 "Help",
-                                "End Turn"]
+                                "End Day"]
     quit_string = "\n(quit) to quit game"
+    print_basic_tutorial_help_information(starting_capital, win_threshold)
+    print("*********************************************************")
     while not (win_condition_met or player_quit):
+        print(f"Day {turn_counter}")
+        print(f"Balance: {player.account.balance}")
         print(factory.__str__())
-        print(f"Current Balance: {player.account.balance}")
-        print(player.catalogue)
+        print("\n^v^v^v^v^v^v^v^v^v^v^v Current Stock ^v^v^v^v^v^v^v^v^v^v^v")
+        print_pretty_player_catalogue(player)
+        print("\n\n")
         command_string = \
             enumerate_list_for_clean_print(top_level_player_options)
         print(command_string + quit_string)
-        player_input = input("Enter a commmand: ")
-        print()
-        print()
-        print()
+        player_input = input("\n\nEnter a commmand:\n>>>>>")
+        print("\n\n\n")
         player_quit = evaluate_quit(player_input)
         if player_input == "0":
             player_decision_buy_or_sell_branch(player, buyer, seller)
@@ -812,10 +1130,13 @@ def basic_tutorial():
             player_decision_grid_interaction_branch(player,
                                             factory, processors_available)
         elif player_input == "2":
-            print(top_level_player_options[int(player_input)] + " Not Ready")
+            player_decision_harvest_all_materials(player, processors_available)
         elif player_input == "3":
-            print(top_level_player_options[int(player_input)] + " Not Ready")
+            print_machine_attributes_of_seller_catalogue()
         elif player_input == "4":
+            print_basic_tutorial_help_information(
+                starting_capital, win_threshold)
+        elif player_input == "5":
             #Need to decrement all processor items here
             turn_counter += 1
             decrement_all_processors(processors_available)
@@ -823,22 +1144,22 @@ def basic_tutorial():
             pass
         else:
             print("Input not recognized")
-            
-        print()
-        print()
+
+        print("\n\n")
         print("*********************************************************")
-        #Evaluate player 
         win_condition_met = win_condition_check(win_threshold, player)
-    
+    write_ledger_to_output_file(ledger)
     print("***********************************GAME END"+
           "***********************************")
-     
+
+
 def main():
     """Runs the basic tutorial game.
     Also sets console pandas print options for better experience."""
+
     pd.set_option('display.width', 1000)
     pd.set_option('max_columns', None)
-    basic_tutorial()
+    basic_tutorial_game()
 
 
 if __name__ == "__main__":

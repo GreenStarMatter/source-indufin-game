@@ -56,6 +56,7 @@ class Vendor():
                           how = 'inner', on = index_columns)
         return list(exists["index"])
 
+
     def _in_place_add_to_catalogue_stock(self, update_df,
                                          temporary_index_store):
         replace_row = self.catalogue.iloc[temporary_index_store].copy()
@@ -70,7 +71,7 @@ class Vendor():
         if replace_row["stock"].values >= 0:
             self.catalogue.iloc[temporary_index_store] = replace_row
         else:
-            print("Not enough stock to complete sale, off by:"+
+            print("Not enough stock to complete sale, off by: "+
                   f"{-replace_row['stock'].values[0]}")
 
 
@@ -138,8 +139,6 @@ class Vendor():
         sale_status = False
         temporary_index_store = self.check_records_exist(update_df)
         if temporary_index_store:
-            #TODO: Put Filtering logic here to get index value
-            #Change temporary_index_store to local variable
             seller_stock = self.catalogue\
                 .iloc[temporary_index_store]["stock"].values
             stock_balance = seller_stock - update_df["stock"].values
