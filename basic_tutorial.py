@@ -87,8 +87,7 @@ def print_vendor_for_ux(vendor):
     print(vendor.catalogue)
 
 def get_all_available_machines_for_placement(grid,
-                                             processors_available,
-                                             all_machines_on_grid):
+                                             processors_available):
     """Pretty print of all machines and the index to select them.  Also shows
     if the machine is ready to accept a new payload"""
 
@@ -105,6 +104,29 @@ def get_all_available_machines_for_placement(grid,
         print(f"{mach_ind} : {machine.machine_name} : {availability}")
         print(machine.__str__())
         print("*****************************************\n")
+
+def get_all_available_machines_for_placement_in_queue(
+        grid, processors_available, queue):
+    """Pretty print of all machines and the index to select them.  Also shows
+    if the machine is ready to accept a new payload"""
+
+    all_machines = list(grid.objects_on_grid.keys())
+    all_available_machines = [machine for machine\
+                              in all_machines\
+                                      if machine not in queue]
+    for mach_ind, machine in enumerate(all_available_machines):
+        processor = processors_available[machine]
+        machine_available = (processor.output_payload is None)\
+            and (processor._processing_flag == 0)
+        availability = "Processing"
+        if machine_available:
+            availability = "Available"
+        print("*****************************************")
+        print(f"Location: {grid.objects_on_grid[machine]}")
+        print(f"{mach_ind} : {machine.machine_name} : {availability}")
+        print(machine.__str__())
+        print("*****************************************\n")
+
 
 def get_all_available_materials_for_placement(start_ind_of_materials,
                                               all_ready_processors):
@@ -260,10 +282,104 @@ def print_basic_tutorial_help_information(starting_capital, win_threshold):
           """)
     print("\n\n\n")
     input("Press Enter to Continue\n\n")
+
+
+def insert_item_to_priority_queue(queue, item_to_insert,
+                                  position, above_below):
+    """Insert an item in the priorty queue based on user preference.
+    Orientation was chosen to align with what the user is displayed on the
+    screen."""
+
+    if queue:
+        position_modifier = 0
+        if above_below == "b":
+            position_modifier = 1
+        elif above_below == "a":
+            position_modifier = 0
+        else:
+            print("Invalid Token")
+        queue.insert(position + position_modifier, item_to_insert)
+    else:
+        queue.append(item_to_insert)
+
+def remove_item_from_priority_queue(queue, position):
+    """Remove an item from the priority queue by index"""
+    queue.pop(position)
+
+def pretty_print_priority_queue(queue, processors_available, grid):
+    """Clean print of the priority queue for user reading."""
+
+    if not queue:
+        print("\n\nCurrently no items in queue\n\n")
+    for mach_ind, machine in enumerate(queue):
+        processor = processors_available[machine]
+        if machine in queue:
+            machine_available = (processor.output_payload is None)\
+                and (processor._processing_flag == 0)
+            availability = "Processing"
+            if machine_available:
+                availability = "Available"
+            print("*****************************************")
+            print(f"Location: {grid.objects_on_grid[machine]}")
+            print(f"{mach_ind} : {machine.machine_name} : {availability}")
+            print(machine.__str__())
+            print("*****************************************\n")
+
+def clean_up_queue(queue, processors_available):
+    """Removes items from queue that are no longer on grid."""
+
+    cleaned_queue = []
+    for machine in queue:
+        if machine in processors_available.keys():
+            cleaned_queue.append(machine)
+        else:
+            print(f"{machine.machine_name} {machine.capacity} at " +\
+                  "removed from queue")
+
+    return cleaned_queue
+   
+
+def auto_fill_priority_queue_items(
+        queue, player, processors_available, factory):
+    """Automatically fills all machines in priority queue.  If there is not
+     enough materials to fill then the machine will be skipped.
+    Need to update machine processable_inputs.  It only looks
+     at material name right now and it should also see augment and potency
+     big change which is touched by multiple classes.
+     LUCKILY, since this is the tutorial all of the inputs are 0 and I can
+     shortcut the autofill instead of doing a look-up"""
+
+    avail = lambda x: (x.output_payload is None) and (x._processing_flag == 0)
+    all_available_machines = [machine for machine\
+                              in queue if avail(processors_available[machine])]
+    for machine in all_available_machines:
+        player_input_coordinates_of_machine = factory.objects_on_grid[machine]
+        material_name = list(machine.processable_inputs)[0]
+        capacity = machine.capacity
+
+        temp_catalogue = player.catalogue.copy()
+        catalogue_row = temp_catalogue[
+            (temp_catalogue["product_type"] == material_name) &
+            (temp_catalogue["form"] == "Bar") &
+            (temp_catalogue["potency"] == 0)].copy()
+        update_amount = min(capacity, catalogue_row["stock"].iloc[0])
+        update_df = create_material_placement_update_df(
+            catalogue_row, update_amount)
+        if update_amount>0:
+            move_material_from_player_catalogue_to_machine(
+                player, factory, processors_available,
+                update_df, player_input_coordinates_of_machine)
+        else:
+            print("Not enough stock for auto-fill")
+        #check catalogue, check capacity
 ############################################################################
 
 ############################################################################
 ###Asset creation functions
+#Priority Queue
+def create_priority_queue():
+    return []
+
 #Ledger
 def create_ledger():
     """Creates a transactional ledger for storing transaction of assets."""
@@ -828,8 +944,7 @@ def player_decision_select_machine_for_placement(player,
     all_machines_on_grid = list(grid.objects_on_grid.keys())
     while not player_input_to_choose_machine_valid:
         get_all_available_machines_for_placement(grid,
-                                                 processors_available,
-                                                 all_machines_on_grid)
+                                                 processors_available)
         machine_choice_prompt = "Choose the index of a machine to place"+\
             " material in or (m) for main menu: "
         material_amount_prompt = "Choose the amount to place in machine:\n" +\
@@ -927,8 +1042,7 @@ def player_decision_remove_from_grid_branch(player,
                                    output_payload_ready_flag == 1]
     while not player_input_check_valid_item:
         get_all_available_machines_for_placement(grid,
-                                             processors_available,
-                                             all_machines_on_grid)
+                                             processors_available)
         get_all_available_materials_for_placement(start_ind_of_materials,
                                                   all_ready_processors)
 
@@ -1015,8 +1129,111 @@ def player_decision_harvest_all_materials(player, processors_available):
     else:
         print("No processors had output payloads.")
 
+def player_decision_priority_queue_branch(
+        queue, processors_available, factory):
+    pretty_print_priority_queue(queue, processors_available, factory)
+    player_input_valid = False
 
-#Slightly different, doesn't branch
+    while not player_input_valid:
+        queue_decision = input("Select 1 to move new item into the queue\n" +\
+                               "Select 2 to remove an item from the queue.\n"+\
+                                   "Select (m) to return to main menu\n>>>>>")
+        if queue_decision == "1":
+            player_input_valid = True
+            player_decision_priority_queue_insert_item_branch(
+                queue, processors_available, factory)
+        elif queue_decision == "2":
+            player_input_valid = True
+            player_decision_priority_queue_remove_item(
+                queue, processors_available, factory)
+        elif queue_decision == "m":
+            player_input_valid = True
+        else:
+            print("Input invalid, please try again.")
+
+def player_decision_priority_queue_choose_insert_poistion(
+        queue, processors_available, factory, item_to_insert):
+    player_input_valid = False
+
+    while not player_input_valid:
+        pretty_print_priority_queue(queue, processors_available, factory)
+        queue_decision = input("Select position to insert into queue\n" +\
+                               "Select (m) to return to main menu\n>>>>>")
+        if (not queue_decision.isdigit()) and (queue_decision != "m"):
+            print("Input invalid, please try again.")
+        elif queue_decision == "m":
+            player_input_valid = True
+        elif int(queue_decision)>=0 and int(queue_decision)<len(queue):
+            player_ab_valid = False
+            while not player_ab_valid:
+                ab_decision = input("Select (a) above or (b) below \n" +\
+                                       "Select (m) to return to main menu\n"+\
+                                           ">>>>>")
+                if ab_decision == "a" or ab_decision == "b":
+                    insert_item_to_priority_queue(queue, item_to_insert,
+                                  int(queue_decision), ab_decision)
+                    player_ab_valid = True
+                    player_input_valid = True
+                elif ab_decision == "m":
+                    player_ab_valid = True
+                    player_input_valid = True
+                else:
+                    print("Input invalid, please try again.")
+        else:
+            print("Input invalid, please try again.")
+
+def player_decision_priority_queue_insert_item_branch(
+        queue, processors_available, factory):
+    player_input_valid = False
+
+    all_available_machines = [machine for machine\
+                              in list(factory.objects_on_grid.keys())\
+                                      if machine not in queue]
+    while not player_input_valid:
+        get_all_available_machines_for_placement_in_queue(
+            factory, processors_available, queue)
+        queue_decision = input("Select item index to add to queue\n" +\
+                               "Select (m) to return to main menu\n>>>>>")
+        pretty_print_priority_queue(queue, processors_available, factory)
+        if (not queue_decision.isdigit()) and (queue_decision != "m"):
+            print("Input invalid, please try again.")
+        elif queue_decision == "m":
+            player_input_valid = True
+        elif int(queue_decision)>=0\
+            and int(queue_decision)<len(all_available_machines):
+            player_input_valid = True
+            if queue:
+                player_decision_priority_queue_choose_insert_poistion(
+                        queue,
+                        processors_available,
+                        factory,
+                        all_available_machines[int(queue_decision)])
+            else:
+                insert_item_to_priority_queue(
+                    queue, all_available_machines[int(queue_decision)],
+                    0, "a")
+        else:
+            print("Input invalid, please try again.")
+
+def player_decision_priority_queue_remove_item(
+        queue, processors_available, factory):
+    player_input_valid = False
+
+    while not player_input_valid:
+        pretty_print_priority_queue(queue, processors_available, factory)
+        queue_decision = input("Select item index to remove from queue\n" +\
+                               "Select (m) to return to main menu\n>>>>>")
+        if (not queue_decision.isdigit()) and (queue_decision != "m"):
+            print("Input invalid, please try again.")
+        elif queue_decision == "m":
+            player_input_valid = True
+        elif int(queue_decision)>=0 and int(queue_decision)<len(queue):
+            remove_item_from_priority_queue(queue, int(queue_decision))
+            print("\n\nItem successfully removed, remove another?\n\n")
+        else:
+            print("Input invalid, please try again.")
+
+
 def player_input_machine_placement_process(player,
                                            grid,
                                            processors_available,
@@ -1029,10 +1246,11 @@ def player_input_machine_placement_process(player,
         player_input_grid_placement_string = "Select coordinates for "+\
             "placement (xy)\nSelect (m) to return to main menu\n>>>>>"
         player_input = input(player_input_grid_placement_string)
-        if len(player_input) != 2:
-            print("Input invalid, please try again.")
-        elif player_input == "m":
+
+        if player_input == "m":
             transaction_completed = True
+        elif len(player_input) != 2:
+            print("Input invalid, please try again.")
         elif player_input[0].isdigit() and player_input[1].isdigit():
             input_coordinates =\
                 convert_coordinates_to_tuple(player_input)
@@ -1092,6 +1310,7 @@ def basic_tutorial_game():
     seller = create_seller_vendor()
     player = create_player(starting_capital)
     factory = create_factory_grid()
+    priority_queue = create_priority_queue()
     ledger_items = [["VOID", "Game", "Buyer", 1],
                     ["VOID", "Game", "Seller", 1],
                     ["VOID", "Game", "Player", 1],
@@ -1105,6 +1324,8 @@ def basic_tutorial_game():
     top_level_player_options = ["Buy/Sell",
                                 "Place/Move Item",
                                 "Harvest All Materials",
+                                "Set Priority Queue",
+                                "Autofill Priority Queue",
                                 "List Machine Configs",
                                 "Help",
                                 "End Day"]
@@ -1132,18 +1353,25 @@ def basic_tutorial_game():
         elif player_input == "2":
             player_decision_harvest_all_materials(player, processors_available)
         elif player_input == "3":
-            print_machine_attributes_of_seller_catalogue()
+            player_decision_priority_queue_branch(
+                priority_queue, processors_available, factory)
         elif player_input == "4":
+            auto_fill_priority_queue_items(
+                priority_queue, player, processors_available, factory)
+        elif player_input == "5":
+            print_machine_attributes_of_seller_catalogue()
+        elif player_input == "6":
             print_basic_tutorial_help_information(
                 starting_capital, win_threshold)
-        elif player_input == "5":
-            #Need to decrement all processor items here
+        elif player_input == "7":
             turn_counter += 1
             decrement_all_processors(processors_available)
         elif player_input == "quit":
             pass
         else:
             print("Input not recognized")
+    
+        priority_queue = clean_up_queue(priority_queue, processors_available)
 
         print("\n\n")
         print("*********************************************************")

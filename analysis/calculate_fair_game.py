@@ -11,38 +11,6 @@ import matplotlib.pyplot as plt
 
 gameplay_calculation = \
     pd.read_csv(r"data\ConfigurationCalculations.csv")
-
-#This is small enough that I don't really have to optimize, but it would be
-#the paper cutting problem in optimization at its core.
-
-#Total Real Estate
-#Possible configurations
-####At least 1 4x4
-# 1 4x4, 5 2x2
-# 1 4x4, 4 2x2, 4 1x1
-#...
-# 1 4x4, 20 1x1
-
-#####No 4x4, at least 1 2x2
-# 9 2x2
-# 8 2x2, 4 1x1
-#...
-# 36 1x1
-
-#What is the inducement to choose a certain machine
-
-#start from end game to find best configurations
-
-#set beginning of game to not be able to afford this and take steps towards
-
-#1 Cost per load
-#F1 = -Cost-(Unit Cost)*Capacity
-#2 Gain per load
-#F2 = (Unit Cost of Processed Material)*Capacity
-#Peak Efficiency Calculation of Machine
-#F3 = -Cost-(Unit Cost)*Capacity*(%TTP==0)+\
-#    (Unit Cost of Processed Material)*Capacity*((%TTP==0) - (TTP==0))
-
 #Machine
 machine = "T1"
 
