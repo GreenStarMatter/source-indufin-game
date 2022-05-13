@@ -1,11 +1,11 @@
 # source-indufin-game
- Source Indufin is a game which involves sourcing materials, processing them, and managing capital.  The player must carefully manage their operating capital when purchasing materials from selling vendors, lock machines into their factory while controlling shrinking free space, process materials to keep an assembly line running, and sell the outputs stay afloat.
+ Source Indufin is a game which involves sourcing materials, processing them, and managing capital.  The player must carefully manage their operating capital when purchasing materials from selling vendors, lock machines into their factory while controlling shrinking free space, process materials to keep an assembly line running, and sell the outputs to stay afloat.
 
 ---
 
 ## Environment
 
-This project was created using a virtual Anaconda environment with Python 3.7.10.  An **environmen.yml** file has been included which will build the complete environment necessary to run this module.
+This project was created using a virtual Anaconda environment with Python 3.7.10.  An **environment.yml** file has been included which will build the complete environment necessary to run this module.
 
 The following command will create this virtual environment.  Replace environment.yml with the full path to where ever you are storing the .yml file.
 
@@ -92,6 +92,8 @@ In one scenario, setting the ratio of starting income and early machine configur
 #### Post-Game Analysis
 Each transaction within the game is recorded into a ledger.  When the player either quits or finishes the game, the ledger is uniquely indexed and written to a .csv in **\analysis\session_data**.  This will act as a convenient vehicle to analyze placement patterns, financial transactions, and player preference.
 
+A Tableau workbook was created as a one-shot analysis of a play through.  The data structure will likely change so I only spent 5-10 minutes on this, but it does give insight on how the game was playing.  There is an image included of the dashboard as well.  Purchasing from the seller happened in very erratic intervals in a guess and check manner so the player could perform actions which they knew fit their factory and then use the left overs to potentially perform secondary purchases.  Selling to the buyer was fairly uniform, there were no decisions to make here so output was unloaded in a single transaction each time.  I'm really regretting not storing the turn in the data ledger because the pacing is not apparent from this visual.  It can be interpreted from the seller/player capital transaction, the first 100 transactions were very flat compared to the last 350.  This informed me to raise the starting capital and to extend the length of the game.  The bulk of the transactions were with the grid, but this data did not capture the fact that the user never had to or wanted to remove a machine from the grid.  That aspect also went into the changing of the game structure.  Without this, a lot of the board economics are removed from the game.  I don't want the player to be overwhelmed in the tutorial, but I'd like them to experience a decision point on what to do when they run out of space and start to flat-line.
+
 ---
 ## Additional Considerations
 
@@ -102,9 +104,12 @@ Included is a project log which I detailed my development process.  This is to g
 
 I believe the long term vision of this game would not take much longer; however, I cannot keep working at the pace that I am.  I would estimate that each feature would take at max a week and in total ~2 months to complete.
 
-- In the near term I'd like to focus on the post-game analytics as I'd like to show-off some of the stuff I did in my master's.  In order to achieve this, I would first need to speed-up some of the game play with the priority queue listed in the project log.  I would like the tutorial to play in about 5 minutes if possible.
+- I would really like to clean this project up.  I wanted to get this to a playable level, but I left behind some engineering structure in order to do that.  There are quite a few items which should be managed as objects and code redundancies in the basic tutorial.  This got me to a product faster, but in the end I gave up a lot of code cleanliness to achieve this.  I also felt naming conventions slipping on me near the end.  I got a bit caught up in deciding how the game would play that I got excited and shot to the end of development... the analytics and design parts were too enticing.  I'm also a sucker for workability (in this case playability), but I'm going to have to root back through this and make some changes to make this more engineered.  Very much a case of stick and carrot encouraging away from strong engineering principles.
+- In the near term I'd like to focus on the post-game analytics as I'd like to show-off some of the stuff I did in my master's.
 - I'd then like to add more data engineering fundamentals to the project.  Those aspects were after thoughts because the data size was so small and infrequent that a lot of it could be safely ignored.  Although the ledger formation is giving me heart palpitations, but I set a hard stop and I need to honor that to.  If anything, I can simulate results from existing sessions and pass those through some cloud services.  I could also sparkify some of the analytics I create.  It would be pretty self-indulgent, but it's good to keep these skills sharp.
 - I think it would also be cool to push this into a web-app with Django.  I don't think it would be too much extra effort if I keep the amount of players to only 1.  I originally shirked from this because it seemed like a complexity explosion, but I may be able to keep it under control with only one user per session.  This would make the data engineering side much more interesting.
 - Increasing UX will be a core facet of this development, I really want to avoid a pure simulation feel... I could see this becoming "work the game" if I'm not careful.
 
+###### Completed Next steps
+-  Game was sped up with the priority queue listed in the project log.  I would like the tutorial to play in about 5 minutes if possible.
 ---
