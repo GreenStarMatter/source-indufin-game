@@ -1303,8 +1303,8 @@ def basic_tutorial_game():
     transaction_id = 1
     line_id = 1
     ledger = create_ledger()
-    win_threshold = 2500
-    starting_capital = 150
+    win_threshold = 3500
+    starting_capital = 275
     turn_counter = 0
     buyer = create_buyer_vendor()
     seller = create_seller_vendor()
