@@ -51,6 +51,19 @@ A normal progression would be to:
 7. Sell material to buyer
 8. Determine how to spend your profit!
 
+Bonus actions can be performed to make turns more efficient:
+
+- Harvest All Machines allows the player to automatically harvest all
+machines which have fully processed materials instead of having to
+individually pull from each one.
+- Set Priority Queue allow the player to arrange machines on the grid
+so that they can be autofilled.
+- Autofill Priority Queue automatically allocates materials to
+machines based on how the player previously set-up.
+
+These 3 actions are very helpful for mature factories.  For example,
+a factory with 10 machines would take approximately 80 commands to
+process.  However, this can be minimized to just 3 top level options.
 
 Currently the game is in a tutorial level stage.  The interface is bare bones with just enough information to make decisions.  The logic is primarily focused on protecting user actions and has some conveniences added in, but still has some progress to be made before the game plays at a good pace.
 

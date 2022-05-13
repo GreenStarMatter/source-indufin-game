@@ -279,6 +279,22 @@ def print_basic_tutorial_help_information(starting_capital, win_threshold):
           6. Harvest material into your catalogue
           7. Sell material to buyer
           8. Determine how to spend your profit!
+          
+          
+          Bonus actions can be performed to make turns more efficient:
+              
+          - Harvest All Machines allows the player to automatically harvest all
+          machines which have fully processed materials instead of having to
+          individually pull from each one.
+          - Set Priority Queue allow the player to arrange machines on the grid
+          so that they can be autofilled.
+          - Autofill Priority Queue automatically allocates materials to
+          machines based on how the player previously set-up.
+          
+          These 3 actions are very helpful for mature factories.  For example,
+          a factory with 10 machines would take approximately 80 commands to
+          process.  However, this can be minimized to just 3 top level options.
+          
           """)
     print("\n\n\n")
     input("Press Enter to Continue\n\n")
