@@ -1,5 +1,5 @@
 # source-indufin-game
- Source Indufin is a game which involves sourcing materials, processing them, and managing capital.  The player must carefully manage their operating capital when purchasing materials from selling vendors, lock machines into their factory while controlling shrinking free space, process materials to keep an assembly line running, and sell the outputs to stay afloat.
+Source Indufin is a game which involves sourcing materials, processing them, and managing capital.  The player must carefully manage their operating capital when purchasing materials from selling vendors, lock machines into their factory while controlling shrinking free space, process materials to keep an assembly line running, and sell the outputs to stay afloat.
 
 ---
 
@@ -26,8 +26,8 @@ An image of the starting board can be found in the top level directory (PlayingB
 
 Hello, welcome to the source-indufin game!
 Currently you are in a basic tutorial mode.  You have been given
-some capital ($150) to start.  Your objective is to raise more
-than a threshold ($2500).  You can do this by purchasing
+some capital ($275) to start.  Your objective is to raise more
+than a threshold ($3500).  You can do this by purchasing
 materials and machines, running a factory, and selling processed
 materials.  The actions you can perform are:
 
